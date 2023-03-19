@@ -19,6 +19,11 @@ LEXEM_REGEXES = [
     (r'\[','CROCHET['),
     (r'\]','CROCHET]'),
     (r'\]','SEMI-COLON'),
+    #STATEMENT
+    (r"if",'IF'),
+    (r"else",'ELSE'),
+    (r"while",'WHILE'),
+    
     #LOGICAL OPERATIONS
     (r"\&&",'AND'),
     (r"\||",'OR'),
