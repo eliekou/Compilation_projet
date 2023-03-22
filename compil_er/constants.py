@@ -1,7 +1,7 @@
 LEXEM_REGEXES = [
     # Comments and whitespaces
     (r"\/\/.*", "COMMENT"),
-    (r"[ \t\n]+", " SPACE "),
+    (r"[ \t\n]+",  None),
     (r"^true","TRUE"),
     (r'false','FALSE'),
     (r'boolean','BOOL'),
@@ -19,6 +19,7 @@ LEXEM_REGEXES = [
     (r'\[','CROCHET['),
     (r'\]','CROCHET]'),
     (r'\]','SEMI-COLON'),
+    (r'\"','GUILLEMET'),
     #STATEMENT
     (r"if",'IF'),
     (r"else",'ELSE'),
@@ -26,7 +27,7 @@ LEXEM_REGEXES = [
     #PUNCTUATIONS
     (r'\.','PUNCTUATION'), 
     #LOGICAL OPERATIONS
-    #(r"\||",'OR'),
+    (r"\|",'OR'),
     #(r"\!",'NO')
     #RELATIONNAL OPERATIONS
     (r'\>','SUPERIOR'),
