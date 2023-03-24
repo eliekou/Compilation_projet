@@ -73,9 +73,9 @@ class Parser:
         """
         Parses a program which is a succession of assignments.
         """
-        self.expect("TYPE_INT")
-        self.expect("KW_MAIN")
-        self.expect("L_PAREN")
+        self.expect("TYPE_CLASS")
+        self.expect("TYPE_IDENTIFIER")
+        self.expect("L_PARENT")
         self.expect("R_PAREN")
         self.expect("L_CURL_BRACKET")
         
