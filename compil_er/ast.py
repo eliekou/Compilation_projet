@@ -32,3 +32,24 @@ class Type:
         self.type = type
     def __str__(self):
         return(str(self.type))
+
+
+class MainClass:
+    def __init__(self,identifier,statement):
+        self.identifier = identifier
+        self.statement = statement
+    def __str__(self):
+        return("class" + str(self.identifier) + "{ public static void main (String []) {}" + str(self.statement) + "}")
+class ClassDeclaration:
+    def __init__(self,identifier,Vardeclaration,MethodDeclaration):
+        self.identifier = identifier
+        self.Vardeclaration = Vardeclaration
+        self.MethodDeclaration = MethodDeclaration
+    def __str__(self):
+        return("class" + str(self.identifier) + "{" + str(self.Vardeclaration) + str(self.MethodDeclaration) + "}")
+class Program:
+    def __init__(self,classes,ClassDeclaration):
+        self.classes = classes
+        self.ClassDeclaration = ClassDeclaration
+    def __str__(self):
+        return(str(self.classes) + str(self.ClassDeclaration))

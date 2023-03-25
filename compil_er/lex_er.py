@@ -79,8 +79,8 @@ class Lexer:
                 match = self.match_lexem(line, lexem_regex)
                 # If a match occurs, break from the loop
                 if match:
-                    print(match)
-                    print(self.lexems)
+                    #print(match)
+                    #print(self.lexems)
                     break
             # If all regexes were tested and none matched,
             # raise an error!
@@ -97,7 +97,7 @@ class Lexer:
         """
         Matches the line with a given regex/tag.
         """
-        print(lexem_regex)
+        #print(lexem_regex)
         pattern, tag = lexem_regex
         # Compile and match the regex
         regex = re.compile(pattern)

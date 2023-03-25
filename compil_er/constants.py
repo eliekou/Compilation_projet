@@ -37,12 +37,16 @@ LEXEM_REGEXES = [
     # Keywords
     (r"int", "TYPE_INT"),
     (r"main", "KW_MAIN"),
+    (r"args", "KW_ARGS"),
     #SPECIFIC TO A CLASS
     (r"class","CLASS"),
+    (r"static","static"),
     (r"public","public"),
+    (r"String","String"),
     (r"private","private"),
-    (r"\w+","IDENTIFIER"),
     (r"void","VOID_TYPE"),
+    (r"\w+","IDENTIFIER"),
+    
     #(r'[a-z]\w*', 'IDENTIFIER'),
     
 ]

@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 
 import logging
-#from compiler.ast import Program
+from ast import Program
 
 logger = logging.getLogger(__name__)
 
@@ -42,6 +42,7 @@ class Parser:
         Pops the next token from the lexems list and tests its type through the tag.
         """
         next_lexem = self.show_next()
+        print(tag)
         if next_lexem.tag != tag:
             raise ParsingException(
                 f"ERROR at {str(self.show_next().position)}: Expected {tag}, got {next_lexem.tag} instead"
@@ -73,17 +74,26 @@ class Parser:
         """
         Parses a program which is a succession of assignments.
         """
-        self.expect("TYPE_CLASS")
-        self.expect("TYPE_IDENTIFIER")
-        self.expect("L_PARENT")
+        self.expect("CLASS")
+        self.expect("IDENTIFIER")
+        self.expect("L_CURL_BRACKET")
+        self.expect("public")
+        self.expect("static")
+        self.expect("VOID_TYPE")
+        self.expect("KW_MAIN")
+        self.expect("L_PAREN")
+        self.expect("String")
+        self.expect("KW_ARGS")
+        self.expect("CROCHET[")
+        self.expect("CROCHET]")
         self.expect("R_PAREN")
         self.expect("L_CURL_BRACKET")
         
         program_node = Program()
-        while (self.show_next().tag != "L_CURL_BRACKET"):
+        while (self.show_next().tag != "R_CURL_BRACKET"):
 
-            if (self.show_next().tag in ["TYPE_INT","TYPE_CHAR","bool"]):
-                program_node.declarations.append(parse_declaration())
+            if (self.show_next().tag in ["TYPE_INT","TYPE_CHAR","bool","TYPE_IDENTIFIER"]):
+                program_node.declarations.append(parse_statement())
             else:
                 self.parse_assignment()
                 program_node.declarations.append(parse_assignments())
@@ -114,13 +124,17 @@ class Parser:
         self.expect("TERMINATOR")
         
 
-    def parse_declaration(self):
+    def parse_Vardeclaration(self):
 
         self.expect("TYPE_INT")
-        self.expect("TYPE_CHAR")
-        self.expect("bool")
-        self.expect("TYP_CHAR")
+        self.expect("TYPE_IDENTIFIER")
+        self.expect("ASSIGN")
+        self.expect("INTEGER")
         #while(self.show_next == "ASSIGN")
         ...
 
     ...
+    def parse_statement(self):
+        self.expect("TYPE_INT")
+        self.expect("TYPE_IDENTIFIER")
+        self.expect("TYPE_IDENTIFIER")
