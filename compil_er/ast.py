@@ -48,7 +48,7 @@ class ClassDeclaration:
     def __str__(self):
         return("class" + str(self.identifier) + "{" + str(self.Vardeclaration) + str(self.MethodDeclaration) + "}")
 class Program:
-    def __init__(self,classes,ClassDeclaration):
+    def __init__(self,classes = None,ClassDeclaration = None):
         self.classes = classes
         self.ClassDeclaration = ClassDeclaration
     def __str__(self):

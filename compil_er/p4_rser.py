@@ -93,10 +93,10 @@ class Parser:
         while (self.show_next().tag != "R_CURL_BRACKET"):
 
             if (self.show_next().tag in ["TYPE_INT","TYPE_CHAR","bool","TYPE_IDENTIFIER"]):
-                program_node.declarations.append(parse_statement())
+                program_node.ClassDeclaration.append(parse_statement())
             else:
                 self.parse_assignment()
-                program_node.declarations.append(parse_assignments())
+                program_node.ClassDeclaration.append(parse_assignments())
         # self.expect("IDENTIFIER")
         self.expect("R_CURL_BRACKET")
 
@@ -114,13 +114,25 @@ class Parser:
 """
         """
         identifier ('[' expression ']')? '=' expression ';' """
-        self.expect("IDENTIFIER")
-        if self.show_next().tag == "L_SQ_BRACKET":
+        self.expect("SYSTEM")
+        self.expect("PUNCTUATION")
+        self.expect("OUT")
+        self.expect("PUNCTUATION")
+        self.expect("PRINTLN")
+        #self.expect("PUNCTUATION")
+        self.expect("L_PAREN")
+        self.expect("GUILLEMET")
+        while (self.show_next().tag != "GUILLEMET"):
+
+            self.expect("IDENTIFIER")
+        self.expect("GUILLEMET")
+        self.expect("R_PAREN")
+        """if self.show_next().tag == "L_SQ_BRACKET":
                 self.expect("L_SQ_BRACKET")
                 self.parse_expression()
-                self.expect("R_SQ_BRACKET")
-        self.expect("ASSIGN")
-        self.parse_expression()
+                self.expect("R_SQ_BRACKET")"""
+        #self.expect("ASSIGN")
+        #self.parse_expression()
         self.expect("TERMINATOR")
         
 

@@ -5,6 +5,9 @@ LEXEM_REGEXES = [
     (r"^true","TRUE"),
     (r'false','FALSE'),
     (r'boolean','BOOL'),
+    (r'System','SYSTEM'),
+    (r'out','OUT'),
+    (r'println','PRINTLN'),
     # Special characters
     (r"\(", "L_PAREN"),
     (r"\)", "R_PAREN"),
