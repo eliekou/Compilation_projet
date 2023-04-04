@@ -2,9 +2,12 @@
 
 import logging
 from ast import Program
+from ast import *
+import ast
 
 logger = logging.getLogger(__name__)
-
+class1 =[]
+classDeclaration =[]
 
 class ParsingException(Exception):
     pass
@@ -65,40 +68,11 @@ class Parser:
         """
         try:
             self.remove_comments()
-            self.parse_program()
+            self.parse_program_2()
         except ParsingException as err:
             logger.exception(err)
             raise
 
-    def parse_program(self):
-        """
-        Parses a program which is a succession of assignments.
-        """
-        self.expect("CLASS")
-        self.expect("IDENTIFIER")
-        self.expect("L_CURL_BRACKET")
-        self.expect("public")
-        self.expect("static")
-        self.expect("VOID_TYPE")
-        self.expect("KW_MAIN")
-        self.expect("L_PAREN")
-        self.expect("String")
-        self.expect("KW_ARGS")
-        self.expect("CROCHET[")
-        self.expect("CROCHET]")
-        self.expect("R_PAREN")
-        self.expect("L_CURL_BRACKET")
-        
-        program_node = Program()
-        while (self.show_next().tag != "R_CURL_BRACKET"):
-
-            if (self.show_next().tag in ["TYPE_INT","TYPE_CHAR","bool","TYPE_IDENTIFIER"]):
-                program_node.ClassDeclaration.append(parse_statement())
-            else:
-                self.parse_assignment()
-                program_node.ClassDeclaration.append(parse_assignments())
-        # self.expect("IDENTIFIER")
-        self.expect("R_CURL_BRACKET")
 
 
         
@@ -106,14 +80,7 @@ class Parser:
         #self.expect("R_CURL_BRACKET")
 
     def parse_assignment(self):
-        """self.expect("IDENTIFIER")
-        self.expect("L_PARENT")
-        self.expect("L_CURL_BRACKET")
-        self.expect("R_CURL_BRACKET")
-        self.expect("R_PARENT")
-"""
-        """
-        identifier ('[' expression ']')? '=' expression ';' """
+       
         self.expect("SYSTEM")
         self.expect("PUNCTUATION")
         self.expect("OUT")
@@ -123,7 +90,7 @@ class Parser:
         self.expect("L_PAREN")
         self.expect("GUILLEMET")
         while (self.show_next().tag != "GUILLEMET"):
-
+            #program_node.ClassDeclaration.Vardeclaration .append.()
             self.expect("IDENTIFIER")
         self.expect("GUILLEMET")
         self.expect("R_PAREN")
@@ -147,6 +114,111 @@ class Parser:
 
     ...
     def parse_statement(self):
-        self.expect("TYPE_INT")
-        self.expect("TYPE_IDENTIFIER")
-        self.expect("TYPE_IDENTIFIER")
+        #Prise en compte des statements
+        #self.expect("TYPE_INT")
+        """self.expect("TYPE_IDENTIFIER")
+        self.expect("TYPE_IDENTIFIER")"""
+       #self.expect("")
+        if self.show_next().tag == "if":
+                self.expect("if")
+        if self.show_next().tag == "PRINTLN2":
+            self.expect("PRINTLN2")
+            self.expect("L_PAREN")
+            self.expect("GUILLEMET")
+            self.expect("IDENTIFIER")
+            self.expect("GUILLEMET")
+            self.expect("R_PAREN")
+            self.expect("TERMINATOR")
+            print("Le print est \n)",System_out_println("identifier"))
+            return System_out_println("identifier")
+
+
+    def parse_program(self):
+        """
+        Parses a program which is a succession of assignments:
+        Program	::=	MainClass ( ClassDeclaration )* <EOF>
+        """
+        #BEGINNING OF parse_program
+        print('"BEGINNING OF parse_program"')
+        self.expect("CLASS")
+        self.expect("IDENTIFIER")
+        self.expect("L_CURL_BRACKET")
+        self.expect("public")
+        self.expect("static")
+        self.expect("VOID_TYPE")
+        self.expect("KW_MAIN")
+        self.expect("L_PAREN")
+        self.expect("String")
+        self.expect("KW_ARGS")
+        self.expect("CROCHET[")
+        self.expect("CROCHET]")
+        self.expect("R_PAREN")
+        self.expect("L_CURL_BRACKET")
+        
+        program_node = Program(class1,classDeclaration)
+        while (self.show_next().tag != "R_CURL_BRACKET"):
+
+            if (self.show_next().tag in ["TYPE_INT","TYPE_CHAR","bool","TYPE_IDENTIFIER"]):
+                program_node.ClassDeclaration.append(self.parse_statement())
+                #parse_statement()
+                print("there is a statement here")
+            else:
+                print("There is an assignment here")
+                program_node.ClassDeclaration.append(self.parse_assignment())
+                #self.parse_assignment()
+
+                #program_node.ClassDeclaration.append(parse_assignment())
+        # self.expect("IDENTIFIER")
+        self.expect("R_CURL_BRACKET")
+
+        "========"
+        # End of parse_program
+        # Print the node
+        print("========")
+        print("PRINTING THE NODE")
+        print(program_node.ClassDeclaration)
+        print(program_node.classes)
+
+        # _________
+
+        main_class_node = self.parse_main_class()
+        program_node = Program(main_class=main_class_node)
+        while self.show_next().tag == "CLASS":
+            class_declaration_node = self.parse_class_declaration()
+            program_node.classes.append(class_declaration_node)
+        return program_node
+
+    def parse_program_2(self):
+
+        main_class_node = self.parse_main_class()
+        #self.parse_main_class()
+        print(main_class_node)
+
+
+    def parse_main_class(self):
+        '''
+        MainClass	::=	"class" "MainClass" "{" "public" "static" "void" "main" "(" "String" "[" "]" "args" ")" "{" Statement "}" "}"
+        '''
+
+
+        self.expect("CLASS")
+        self.expect("IDENTIFIER")
+        self.expect("L_CURL_BRACKET")
+        self.expect("public")
+        self.expect("static")
+        self.expect("VOID_TYPE")
+        self.expect("KW_MAIN")
+        self.expect("L_PAREN")
+        self.expect("String")
+        self.expect("KW_ARGS")
+        self.expect("CROCHET[")
+        self.expect("CROCHET]")
+        self.expect("R_PAREN")
+        self.expect("L_CURL_BRACKET")
+        
+        self.parse_statement()
+
+        self.expect("R_CURL_BRACKET")
+        self.expect("R_CURL_BRACKET")
+        #return MainClass()
+

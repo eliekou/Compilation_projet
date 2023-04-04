@@ -26,7 +26,20 @@ class MethodDeclaration:
         self.expr = expr
     def __str__(self):
         return (str(self.id))
+class If_stat:
 
+    def __init__(self,cond,body,Else):
+        self.cond = cond 
+        self.body = body
+        self.Else = Else
+
+    def __str__(self):
+        return("if (" + str(self.cond ) + "){" +str(self.body)+ "} " + str(self.Else))
+class System_out_println:
+    def __init__(self,expr):
+        self.expr = expr
+    def __str__(self):
+        return("System.out.println(" + str(self.expr) + ");")
 class Type:
     def __init__(self,type):
         self.type = type
@@ -48,8 +61,8 @@ class ClassDeclaration:
     def __str__(self):
         return("class" + str(self.identifier) + "{" + str(self.Vardeclaration) + str(self.MethodDeclaration) + "}")
 class Program:
-    def __init__(self,classes = None,ClassDeclaration = None):
+    def __init__(self, main_class, classes = []):
         self.classes = classes
-        self.ClassDeclaration = ClassDeclaration
+        self.main_class = main_class
     def __str__(self):
         return(str(self.classes) + str(self.ClassDeclaration))

@@ -14,3 +14,16 @@ class Fac {
         return num_aux ;
     }
 }
+
+"""// MainClass ::= "class" "MainClass" "{" "public" "static" "void" "main" 
+//                 "(" "String" "[" "]" "args" ")" "{" "}" "}"
+class MainClass {  
+    public static void main(String[] args) {  
+        a = 1;
+
+    }  
+}
+#D'abord parse les mainclass avec 1 seule statement
+#parse_if statement
+#parse_while
+#parse"""
