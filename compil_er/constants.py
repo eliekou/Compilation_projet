@@ -5,6 +5,7 @@ LEXEM_REGEXES = [
     (r"^true","TRUE"),
     (r'false','FALSE'),
     (r'boolean','BOOL'),
+    (r'System.out.println','PRINTLN2'),
     (r'System','SYSTEM'),
     (r'out','OUT'),
     (r'println','PRINTLN'),
