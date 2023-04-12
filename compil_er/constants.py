@@ -40,15 +40,18 @@ LEXEM_REGEXES = [
     (r'\[<=]','INFERIOR OR EQUAL'),
     # Keywords
     (r"int", "TYPE_INT"),
-    (r"main", "KW_MAIN"),
+    
     (r"args", "KW_ARGS"),
     #SPECIFIC TO A CLASS
+    (r"main_class","MAIN_CLASS"),
+    (r"main", "KW_MAIN"),
     (r"class","CLASS"),
     (r"static","static"),
     (r"public","public"),
     (r"String","String"),
     (r"private","private"),
     (r"void","VOID_TYPE"),
+    (r"\d+", "INTEGER"),
     (r"\w+","IDENTIFIER"),
     
     #(r'[a-z]\w*', 'IDENTIFIER'),
