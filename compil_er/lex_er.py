@@ -1,5 +1,7 @@
+# -*- encoding: utf-8 -*-
+
 import re
-from compiler.constants import LEXEM_REGEXES
+from constants import LEXEM_REGEXES
 
 import logging
 
@@ -77,6 +79,8 @@ class Lexer:
                 match = self.match_lexem(line, lexem_regex)
                 # If a match occurs, break from the loop
                 if match:
+                    #print(match)
+                    #print(self.lexems)
                     break
             # If all regexes were tested and none matched,
             # raise an error!
@@ -93,6 +97,7 @@ class Lexer:
         """
         Matches the line with a given regex/tag.
         """
+        #print(lexem_regex)
         pattern, tag = lexem_regex
         # Compile and match the regex
         regex = re.compile(pattern)
@@ -114,5 +119,7 @@ class Lexer:
         """
         lexem = Lexem(tag, data, [self.current_line_number, self.current_position])
         self.lexems.append(lexem)
+
+
 
 
