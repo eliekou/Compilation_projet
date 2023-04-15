@@ -101,21 +101,17 @@ class Parser:
             self.expect("IDENTIFIER")
         self.expect("GUILLEMET")
         self.expect("R_PAREN")
-        """if self.show_next().tag == "L_SQ_BRACKET":
-                self.expect("L_SQ_BRACKET")
-                self.parse_expression()
-                self.expect("R_SQ_BRACKET")"""
-        #self.expect("ASSIGN")
-        #self.parse_expression()
+        
         self.expect("TERMINATOR")
         
 
     def parse_Vardeclaration(self):
 
         self.expect("TYPE_INT")
-        self.expect("TYPE_IDENTIFIER")
-        self.expect("ASSIGN")
-        self.expect("INTEGER")
+        self.expect("IDENTIFIER")
+        self.expect("TERMINATOR")
+        #self.expect("ASSIGN")
+        #self.expect("INTEGER")
         #while(self.show_next == "ASSIGN")
         ...
 
@@ -167,7 +163,7 @@ class Parser:
 
     def parse_statement(self):
         #Prise en compte des statements
-        
+        #print("PARSETATA")
         if self.show_next().tag == "IF":
             return self.parse_if_statement()  
                 
@@ -243,6 +239,8 @@ class Parser:
         main_class_node = self.parse_main_class()
         class_node = self.parse_class_declaration()
 
+
+        print("Class node\n",class_node)
         #class_node = self.parse_class_declaration()
         print("MAIN CLASS NODE\n",main_class_node)
         program_node = Program(main_class=main_class_node,classes = class_node)
@@ -261,8 +259,8 @@ class Parser:
         '''
 
 
-        #self.expect("MAIN_CLASS")
-        self.expect("CLASS")
+        self.expect("MAIN_CLASS")
+        #self.expect("CLASS")
         self.expect("IDENTIFIER")
         self.expect("L_CURL_BRACKET")
         self.expect("public")
@@ -283,7 +281,11 @@ class Parser:
         self.expect("R_CURL_BRACKET")
         return main_class_node
         #return MainClass()
-
+    def parse_return(self):
+        self.expect("RETURN")
+        id1 = self.expect("IDENTIFIER")
+        self.expect("TERMINATOR")
+        return simple_expression(id1)
     def parse_class_declaration(self):
         '''
         ClassDeclaration	::=	"class" "IDENTIFIER" "{" ( VarDeclaration )* ( MethodDeclaration )* "}"
@@ -291,15 +293,56 @@ class Parser:
         self.expect("CLASS")
         class_name = self.expect("IDENTIFIER")
         self.expect("L_CURL_BRACKET")
+        self.expect("L_CURL_BRACKET")
         class_node = Class(name=class_name)
-        while self.show_next().tag in ["TYPE_INT","TYPE_CHAR","bool","TYPE_IDENTIFIER"]:
-            var_declaration_node = self.parse_var_declaration()
+      
+        while self.show_next().tag != "public":
+            var_declaration_node = self.parse_statement()
+        #print(var_declaration_node)
             class_node.var_declarations.append(var_declaration_node)
-        """while self.show_next().tag == "KW_PUBLIC":
-            method_declaration_node = self.parse_method_declaration()
-            class_node.method_declarations.append(method_declaration_node)
-        self.expect("R_CURL_BRACKET")"""
+        self.expect("public")
+        method_declaration_node = self.parse_method_declaration()
+        class_node.method_declarations.append(method_declaration_node)
+
         return class_node
+    def parse_method_declaration(self):
+        """
+        MethodDeclaration	::=	"public" Type Identifier "(" ( Type Identifier ( "," Type Identifier )* )? ")" "{" ( VarDeclaration )* ( Statement )* "return" Expression ";" "}"
+        """
+        #self.expect("PUBLIC")
+        method_type = self.parse_type()
+        method_name = self.expect("IDENTIFIER")
+        self.expect("L_PAREN")
+        if self.show_next().tag != "R_PAREN":
+            param_type = self.parse_type()
+            param_name = self.expect("IDENTIFIER")
+            Param1 = Param(param_type,param_name)
+            method_params = [Param1]#Paramètres de la méthode
+            while self.show_next().tag == "COMMA":
+                self.expect("COMMA")
+                param_type = self.parse_type()
+                param_name = self.expect("IDENTIFIER")
+                method_params.append(Param(type=param_type, identifier=param_name))
+            
+            self.expect("R_PAREN")
+            self.expect("L_CURL_BRACKET")
+            method_node = MethodDeclaration(type1=method_type, name=method_name, params=method_params)
+            while self.show_next().tag != "RETURN":
+                var_declaration_node = self.parse_Vardeclaration()
+                method_node.var_declarations.append(var_declaration_node)
+
+                if self.show_next().tag in ["TYPE_INT","TYPE_CHAR","bool","TYPE_IDENTIFIER"]:
+                    method_node.statements.append(self.parse_statement())
+            """self.expect("RETURN")
+            method_node.return_expression = self.expect("IDENTIFIER")
+            self.expect("TERMINATOR")"""
+
+
+
+            return1 = self.parse_return()
+            method_node.return_expression.append(return1)
+            self.expect("R_CURL_BRACKET")
+            return method_node            
 
     def parse_var_declaration(self):
         '''

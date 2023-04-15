@@ -1,10 +1,14 @@
 class Class:
-    def __init__(self, name = None):
+    def __init__(self,name):
         self.name = name
         self.var_declarations = []
         self.method_declarations = []
     def __str__(self):
-        return("Class" + str(self.name) + "{" + str(self.var_declarations) + str(self.method_declarations) + "}")
+
+        var_str = "\n".join([str(var) for var in self.var_declarations])
+        method_str = "\n".join([str(method) for method in self.method_declarations])
+
+        return("Class" + str(self.name) + "{\n" + var_str + method_str+ "}")
 class Identifier:
     def __init__(self,id):
         self.id = id
@@ -19,13 +23,32 @@ class Vardeclaration:
         return(str(self.type)+str(self.identifier) + ";")
 
 class MethodDeclaration:
-    def __init__(self,fname,ftype,vardecl,expr):
-        self.fname = fname
-        self.ftype = ftype
-        self.vardecl = vardecl
-        self.expr = expr
+    def __init__(self,name,type1,params):
+        self.name = name
+        self.type = type1
+        self.parameters = params
+        self.var_declarations = []
+        self.return_expression = []
     def __str__(self):
-        return (str(self.id))
+
+        var_str = "\n".join([str(var) for var in self.var_declarations])
+        return_str = "\n".join([str(ret) for ret in self.return_expression])
+        params = "\n".join([str(param) for param in self.parameters])
+
+
+        return ("\npublic "+ (str(self.name)) + "(" + params + ")" + "{\n" + var_str + "\nreturn " + return_str + "}")
+
+
+class Param:
+    def __init__(self,type1,name):
+        self.type = type1
+        self.identifier = name
+
+    def __str__(self):
+        return(str(self.type) + str(self.identifier))
+
+
+
 #Abstract class Statement
 class Statement():
     pass
@@ -64,14 +87,17 @@ class MainClass:
         self.statement = statement
     def __str__(self):
         return("class" + str(self.identifier) + "{ public static void main (String []) {}" + str(self.statement) + "}")
-"""class ClassDeclaration:
+
+
+class ClassDeclaration:
     def __init__(self,identifier,Vardeclaration,MethodDeclaration):
         self.identifier = identifier
         self.Vardeclaration = Vardeclaration
+        #VarDeclaration is like a new expression
         self.MethodDeclaration = MethodDeclaration
     def __str__(self):
         return("class" + str(self.identifier) + "{" + str(self.Vardeclaration) + str(self.MethodDeclaration) + "}")
-"""
+
 
 class Expression:
     pass
@@ -110,9 +136,15 @@ class countery_expression(Expression):
         self.identifier = identifier
     def __str__(self):
         return("!" + str(self.identifier))
+
+class simple_expression:
+    def __init__(self,identifier):
+        self.identifier = identifier
+    def __str__(self):
+        return(str(self.identifier))
 class Program:
     def __init__(self, main_class, classes = []):
         self.classes = classes
         self.main_class = main_class
     def __str__(self):
-        return(str(self.classes)  + "\nclass MainClass {\n public static void main (String [] args){\n"+ str(self.main_class)+ "\n}" + str(self.classes)  )
+        return( "\nclass MainClass {\n public static void main (String [] args){\n"+ str(self.main_class)+ "\n}" + "\n"+str(self.classes)  )

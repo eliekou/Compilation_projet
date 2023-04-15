@@ -24,6 +24,7 @@ LEXEM_REGEXES = [
     (r'\]','CROCHET]'),
     (r'\]','SEMI-COLON'),
     (r'\"','GUILLEMET'),
+    (r"return",'RETURN'),
     #STATEMENT
     (r"if",'IF'),
     (r"else",'ELSE'),
