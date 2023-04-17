@@ -3,6 +3,7 @@
 import sys
 from lex_er import Lexer
 from p4_rser import Parser
+from visiter import *
 
 if __name__ == "__main__":
     lexer = Lexer()
@@ -12,3 +13,4 @@ if __name__ == "__main__":
     #
     parser = Parser(lexer.lex_file(sys.argv[1]))
     print(parser.parse()) 
+    #PrettyPrinter().visit_program(parser.parse())
