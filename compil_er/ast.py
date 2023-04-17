@@ -9,11 +9,15 @@ class Class:
         method_str = "\n".join([str(method) for method in self.method_declarations])
 
         return("Class" + str(self.name) + "{\n" + var_str + method_str+ "}")
+    def accept(self,visitor):
+        return visitor.visit_class(self)
 class Identifier:
     def __init__(self,id):
         self.id = id
     def __str__(self):
         return(str(self.id))
+    def accept(self,visitor):
+        return visitor.visit_identifier(self)
 
 class Vardeclaration:
     def __init__(self,type,identifier):
@@ -21,6 +25,9 @@ class Vardeclaration:
         self.identifier = identifier
     def __str__(self):
         return(str(self.type)+str(self.identifier) + ";")
+    def accept(self,visitor):
+        return visitor.visit_var_declaration(self)
+
 
 class MethodDeclaration:
     def __init__(self,name,type1,params):
@@ -28,15 +35,21 @@ class MethodDeclaration:
         self.type = type1
         self.parameters = params
         self.var_declarations = []
+        self.statements = []
         self.return_expression = []
+
     def __str__(self):
 
         var_str = "\n".join([str(var) for var in self.var_declarations])
         return_str = "\n".join([str(ret) for ret in self.return_expression])
         params = "\n".join([str(param) for param in self.parameters])
+        statements = "\n".join([str(stat) for stat in self.statements])
 
 
-        return ("\npublic "+ (str(self.name)) + "(" + params + ")" + "{\n" + var_str + "\nreturn " + return_str + "}")
+        return ("\npublic "+ (str(self.name)) + "(" + params + ")" + "{\n" + var_str + ""+"\nreturn " + return_str + "}")
+
+    def accept(self,visitor):
+        return visitor.visit_method_declaration(self)
 
 
 class Param:
@@ -46,6 +59,9 @@ class Param:
 
     def __str__(self):
         return(str(self.type) + str(self.identifier))
+
+    def accept(self,visitor):
+        return visitor.visit_param(self)
 
 
 
@@ -60,6 +76,8 @@ class ie_Statement(Statement):
         self.expression = expression
     def __str__(self):
         return(str(self.identifier) + "=" + str(self.expression) + ";\n")
+    def accept(self,visitor):
+        return visitor.visit_ie_statement(self)
 class If_stat(Statement):
 
     def __init__(self,cond,body,Else):
@@ -69,16 +87,22 @@ class If_stat(Statement):
 
     def __str__(self):
         return("if (" + str(self.cond ) + "){" +str(self.body)+ "} " + "else {" + str(self.Else) + "}" )
+    def accept(self,visitor):
+        return visitor.visit_if_statement(self)
 class System_out_println(Statement):
     def __init__(self,expr):
         self.expr = expr
     def __str__(self):
         return("System.out.println(" + str(self.expr) + ");")
+    def accept(self,visitor):
+        return visitor.visit_system_out_println(self)
 class Type:
     def __init__(self,type):
         self.type = type
     def __str__(self):
         return(str(self.type))
+    def accept(self,visitor):
+        return visitor.visit_type(self)
 
 
 class MainClass:
@@ -87,6 +111,8 @@ class MainClass:
         self.statement = statement
     def __str__(self):
         return("class" + str(self.identifier) + "{ public static void main (String []) {}" + str(self.statement) + "}")
+    def accept(self,visitor):
+        return visitor.visit_main_class(self)
 
 
 class ClassDeclaration:
@@ -97,6 +123,8 @@ class ClassDeclaration:
         self.MethodDeclaration = MethodDeclaration
     def __str__(self):
         return("class" + str(self.identifier) + "{" + str(self.Vardeclaration) + str(self.MethodDeclaration) + "}")
+    def accept(self,visitor):
+        return visitor.visit_class(self)
 
 
 class Expression:
@@ -109,12 +137,16 @@ class BinaryExpression(Expression):
         self.op = op
     def __str__(self):
         return(str(self.left) + str(self.op) + str(self.right))
+    def accept(self,visitor):
+        return visitor.visit_binary_expression(self)
 
 class new_expression(Expression):
     def __init__(self,identifier):
         self.identifier = identifier
     def __str__(self):
         return("new" + str(self.identifier) + "();")
+    def accept(self,visitor):
+        return visitor.visit_new_expression(self)
 
 class new_array_expression(Expression):
     pass
@@ -123,6 +155,8 @@ class expression_length(Expression):
         self.identifier = identifier
     def __str__(self):
         return(str(self.identifier) + ".length")
+    def accept(self,visitor):
+        return visitor.visit_expression_length(self)
 
 #Boolean expression
 
@@ -131,17 +165,22 @@ class bool_expression(Expression):
         self.bool = bool
     def __str__(self):
         return(str(self.bool))
+    def accept(self,visitor):
+        return visitor.visit_bool_expression(self)
 class countery_expression(Expression):
     def __init__(self,identifier):
         self.identifier = identifier
     def __str__(self):
         return("!" + str(self.identifier))
-
-class simple_expression:
+    def accept(self,visitor):
+        return visitor.visit_countery_expression(self)
+class simple_expression(Expression):
     def __init__(self,identifier):
         self.identifier = identifier
     def __str__(self):
         return(str(self.identifier))
+    def accept(self,visitor):   
+        return visitor.visit_simple_expression(self)
 class Program:
     def __init__(self, main_class, classes = []):
         self.classes = classes

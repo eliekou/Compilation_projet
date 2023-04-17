@@ -237,10 +237,14 @@ class Parser:
     def parse_program_2(self):
 
         main_class_node = self.parse_main_class()
-        class_node = self.parse_class_declaration()
+
+        if self.show_next().tag == "CLASS":
+            class_node = self.parse_class_declaration()
 
 
-        print("Class node\n",class_node)
+            print("Class node\n",class_node)
+        else:
+            class_node = None
         #class_node = self.parse_class_declaration()
         print("MAIN CLASS NODE\n",main_class_node)
         program_node = Program(main_class=main_class_node,classes = class_node)
@@ -331,7 +335,7 @@ class Parser:
                 var_declaration_node = self.parse_Vardeclaration()
                 method_node.var_declarations.append(var_declaration_node)
 
-                if self.show_next().tag in ["TYPE_INT","TYPE_CHAR","bool","TYPE_IDENTIFIER"]:
+                while self.show_next().tag in ["TYPE_INT","TYPE_CHAR","bool","IDENTIFIER"]:
                     method_node.statements.append(self.parse_statement())
             """self.expect("RETURN")
             method_node.return_expression = self.expect("IDENTIFIER")

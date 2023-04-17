@@ -1,4 +1,4 @@
-class Test1{  
+main_class Test1{  
     public static void main(String args[]){  
      
      System.out.println("HelloJava");
