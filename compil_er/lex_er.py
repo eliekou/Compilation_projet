@@ -27,6 +27,8 @@ class Lexem:
 
     def __repr__(self):
         return f"{self.tag}({self.value})"
+    def accept(self,visitor):
+        print(self)
 
 
 class Lexer:
@@ -48,6 +50,7 @@ class Lexer:
         """
         with open(file, "r") as input_file:
             contents = input_file.readlines()
+        print(self.lexems)
         return self.lex(contents)
 
     def lex(self, input):
@@ -120,6 +123,7 @@ class Lexer:
         lexem = Lexem(tag, data, [self.current_line_number, self.current_position])
         self.lexems.append(lexem)
 
+    
 
 
 
