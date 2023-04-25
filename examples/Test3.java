@@ -1,4 +1,4 @@
-main_class Test1{  
+class Main{  
     public static void main(String args[]){  
      
      if (a == 1){

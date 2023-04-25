@@ -1,10 +1,10 @@
-main_class Test1{  
+class Main {  
     public static void main(String args[]){  
      
      System.out.println("HelloJava");
     }  
 }  
 
-class Test2 {
-    int a2;
-}
+ class Test2 {
+     int a2;
+ }
