@@ -39,7 +39,7 @@ class Parser:
         try:
             return self.lexems[n - 1]
         except IndexError:
-            print("No more lexems left.")
+            print("")
             # self.error("No more lexems left.")
 
     def expect(self, tag):
@@ -235,6 +235,9 @@ class Parser:
             program_node.classes.append(class_declaration_node)
         return program_node
 
+    def visit_Program(self, program):
+        pass
+
     def parse_program_2(self):
         """
         Parses a program which is a succession of assignments:
@@ -244,9 +247,14 @@ class Parser:
         class_declarations = []
         # Ca devrait etre un while mais problème de consommation de léxèmes
         if self.show_next() is not None:
+            print("show next is not none", self.show_next().tag)
+
             while self.show_next().tag == "CLASS":
                 class_node = self.parse_class_declaration()
                 class_declarations.append(class_node)
+
+                if self.show_next() is None:
+                    break
         program_node = Program(main_class=main_class_node, classes=class_declarations)
 
         return program_node
@@ -298,6 +306,8 @@ class Parser:
 
         class_node = Class(name=class_name)
         while self.show_next().tag != "public":
+            print("self.show_next().tag", self.show_next().tag)
+            # print("self.show_next().tag", self.show_next().tag)
             if (
                 self.show_next().tag == "TYPE_INT"
                 or self.show_next().tag == "TYPE_CHAR"
@@ -309,11 +319,14 @@ class Parser:
                 class_node.var_declarations.append(var_declaration_node)
 
             if self.show_next().tag == "R_CURL_BRACKET":
-                break
+                self.expect("R_CURL_BRACKET")
+                return class_node
+
             else:
                 print("ERROR", self.show_next().tag)
 
         if self.show_next().tag == "public":
+            # print("There is a public hereDDDDDDDDD")
             method_declaration_node = self.parse_method_declaration()
             class_node.method_declarations.append(method_declaration_node)
 
