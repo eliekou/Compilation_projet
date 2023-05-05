@@ -124,7 +124,7 @@ class PrettyPrinter(Visitor):
         for method_declarations in class_.method_declarations:
             if method_declarations is not None:
                 print_str3 += self.visit(method_declarations)
-        print("STR3", print_str3)
+        # print("STR3", print_str3)
         return (
             "\nclass "
             + str(class_.name)
@@ -476,18 +476,29 @@ class SemanticAnalyser(Visitor):
 
 
 class SemanticAnalyzer2(Visitor):
-    def visit_program(self, program):
-        # main_class_name = program.main_class.name
+    def __init__(self):
+        self.class_names = []
+        self.method_names = []
+        self.var_names = []
 
+    def visit_program(self, program):
         self.visit(program.main_class)
         for class_decl in program.classes:
+            print("class_decl\n")
             self.visit(class_decl)
 
     def visit_main_class(self, main_class):
-        # main_class_name = main_class.name
         self.visit(main_class.statement)
 
-    def visit_class_declaration(self, class_):
+    def visit_class(self, class_):
+        print("VISIT CLASS DECLARATION")
+
+        if str(class_.name) in str(self.class_names):
+            raise Exception("Class name already defined")
+
+        else:
+            self.class_names.append(class_.name)
+
         for var in class_.var_declarations:
             self.visit(var)
 
@@ -496,10 +507,15 @@ class SemanticAnalyzer2(Visitor):
 
     def visit_method_declaration(self, method):
         """MethodDeclaration	::=	"public" Type Identifier "(" ( Type Identifier ( "," Type Identifier )* )? ")" "{" ( VarDeclaration )* ( Statement )* "return" Expression ";" "}"""
-
+        """On va vérifier que le nom de la méthode n'est pas déjà utilisé"""
         var_declarations = []
         statements = []
         return_expression = []
+
+        if str(method.name) in str(self.method_names):
+            raise Exception("Method name already defined for another method")
+        else:
+            self.method_names.append(method.name)
 
         if method.var_declarations is not None:
             for var_decl in method.var_declarations:
@@ -513,8 +529,17 @@ class SemanticAnalyzer2(Visitor):
             for return_expression1 in method.return_expression:
                 if return_expression1 is not None:
                     self.visit(return_expression1)
+        print("self.method_names\n", self.method_names)
 
     def visit_var(self, var):
+        """On va vérifier que le nom de la variable n'est pas déja utilisé et que les types des objets
+        sont les bons."""
+
+        if var.name in self.var_names:
+            raise Exception("Variable name already defined")
+        else:
+            self.var_names.append(var.name)
+
         if var.type.tag not in [
             "TYPE_INT",
             "boolean",
@@ -546,6 +571,13 @@ class SemanticAnalyzer2(Visitor):
         return expression_length.name + ".length"
 
     def visit_identifier(self, identifier):
+        if identifier.id.tag not in ["IDENTIFIER"]:
+            raise Exception(
+                "Unknown type: "
+                + str(identifier.id)
+                + "Was expecting type IDENTIFIER got "
+                + str(identifier.id.tag)
+            )
         return identifier.id
 
     def visit_bool_expression(self, bool_expression):
@@ -561,8 +593,6 @@ class SemanticAnalyzer2(Visitor):
         return "System.out.println(" + str(system_out_println.expr) + ");"
 
     def visit_ie_statement(self, ie_statement):
-        # return self.visit(ie_statement.expression)
-
         if ie_statement.identifier.tag not in ["IDENTIFIER"]:
             raise Exception("Unknown type: " + str(ie_statement.identifier))
 

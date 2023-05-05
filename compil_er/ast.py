@@ -148,9 +148,11 @@ class Type:
 class Integer:
     def __init__(self, value):
         self.value = value
+
     def __str__(self):
         return str(self.value)
-    def accept(self,visitor):
+
+    def accept(self, visitor):
         return visitor.visit_Integer(self)
 
 
@@ -191,7 +193,7 @@ class ClassDeclaration:
         )
 
     def accept(self, visitor):
-        return visitor.visit_class(self)
+        return visitor.visit_class_declaration(self)
 
 
 class Expression:

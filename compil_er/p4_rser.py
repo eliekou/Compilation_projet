@@ -250,6 +250,7 @@ class Parser:
             print("show next is not none", self.show_next().tag)
 
             while self.show_next().tag == "CLASS":
+                print("ee", self.show_next().tag)
                 class_node = self.parse_class_declaration()
                 class_declarations.append(class_node)
 
@@ -329,6 +330,8 @@ class Parser:
             # print("There is a public hereDDDDDDDDD")
             method_declaration_node = self.parse_method_declaration()
             class_node.method_declarations.append(method_declaration_node)
+
+        self.expect("R_CURL_BRACKET")
 
         return class_node
 
