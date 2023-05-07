@@ -7,12 +7,12 @@ class Main{
 class Test1{  
     
     int a ;
-
+    int a;
     int b ;
 
-}     
+     
 
-     public int ComputeFac(int num){
+    public int ComputeFac(int num){
         int num_aux;
         a1 =2;
 

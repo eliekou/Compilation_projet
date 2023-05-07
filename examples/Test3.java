@@ -1,7 +1,7 @@
 class Main{  
     public static void main(String args[]){  
      
-     if (a == 1){
+     if (a = 1){
             a = 2;
 
      }
