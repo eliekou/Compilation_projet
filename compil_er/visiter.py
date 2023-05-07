@@ -213,6 +213,12 @@ class PrettyPrinter(Visitor):
     def visit_bool_expression(self, bool_expression):
         return str(bool_expression.value)
 
+    def visit_lenght_expression(self, lenght_expression):
+        return str(lenght_expression.name) + ".length"
+
+    def visit_countery_expression(self, countery_expression):
+        return "!" + str(countery_expression.name)
+
     def visit_system_out_println(self, system_out_println):
         a = self.visit(system_out_println.expr)
 

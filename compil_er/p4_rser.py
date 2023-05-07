@@ -85,20 +85,16 @@ class Parser:
 
         return type1
 
-        # Your code here!
-        # self.expect("R_CURL_BRACKET")
-
     def parse_assignment(self):
         self.expect("SYSTEM")
         self.expect("PUNCTUATION")
         self.expect("OUT")
         self.expect("PUNCTUATION")
         self.expect("PRINTLN")
-        # self.expect("PUNCTUATION")
+
         self.expect("L_PAREN")
         self.expect("GUILLEMET")
         while self.show_next().tag != "GUILLEMET":
-            # program_node.ClassDeclaration.Vardeclaration .append.()
             self.expect("IDENTIFIER")
         self.expect("GUILLEMET")
         self.expect("R_PAREN")
@@ -109,12 +105,12 @@ class Parser:
         self.expect("TYPE_INT")
         self.expect("IDENTIFIER")
         self.expect("TERMINATOR")
-        # self.expect("ASSIGN")
-        # self.expect("INTEGER")
-        # while(self.show_next == "ASSIGN")
+
         ...
 
     ...
+    """La fonction parse_expression doit, pour respecter la grammaire, prendre en compte toutes les différentes 
+    expressions y compris toutes les opérations logiques entre expressions."""
 
     def parse_expression(self):
         if self.show_next().tag == "TRUE":
@@ -138,7 +134,7 @@ class Parser:
         if self.show_next().tag == "INTEGER":
             print("NEW INTEGER EXPRESSION")
             int1 = self.expect("INTEGER")
-            # self.expect(("TERMINATOR"))
+
             return int_expression(int1)
 
         if self.show_next().tag == "IDENTIFIER":
@@ -146,20 +142,19 @@ class Parser:
 
             if self.show_next().tag == "ASSIGN":
                 self.expect("ASSIGN")
-                # self.expect("ASSIGN")
-                # int1 = self.expect("INTEGER")
+
                 id2 = self.parse_expression()
                 print("NEW PARSE EXPRESSION")
                 return ie_Statement(id1, id2)
             if self.show_next().tag == "INFERIOR":
                 self.expect("INFERIOR")
-                # int1 = self.expect("INTEGER")
+
                 id2 = self.parse_expression()
                 print("NEW PARSE EXPRESSION")
                 return ie_Statement(id1, id2)
             if self.show_next().tag == "AND":
                 self.expect("AND")
-                # int1 = self.expect("INTEGER")
+
                 id2 = self.parse_expression()
                 print("NEW PARSE EXPRESSION")
                 return ie_Statement(id1, id2)
@@ -191,7 +186,7 @@ class Parser:
         self.expect("GUILLEMET")
         id2 = self.expect("IDENTIFIER")
         self.expect("GUILLEMET")
-        # expr_node = self.parse_expression()
+
         self.expect("R_PAREN")
         self.expect("TERMINATOR")
         return System_out_println(id2)
@@ -209,9 +204,6 @@ class Parser:
 
         if self.show_next().tag == "PRINTLN2":
             return self.parse_println2()
-
-        """if self.show_next().tag == "IDENTIFIER":
-            return self.parse_identifier_statement()"""
 
         if self.show_next().tag == "L_CURL_BRACKET":
             self.expect("L_CURL_BRACKET")

@@ -52,6 +52,7 @@ LEXEM_REGEXES = [
     (r"public", "public"),
     (r"String", "String"),
     (r"private", "private"),
+    (r"length", "length"),
     (r"void", "VOID_TYPE"),
     (r"\d+", "INTEGER"),
     (r"\w+", "IDENTIFIER"),

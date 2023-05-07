@@ -256,14 +256,25 @@ class bool_expression(Expression):
 
 
 class countery_expression(Expression):
-    def __init__(self, identifier):
-        self.object = identifier
+    def __init__(self, ob1):
+        self.object = ob1
 
     def __str__(self):
         return "!" + str(self.object)
 
     def accept(self, visitor):
         return visitor.visit_countery_expression(self)
+
+
+class lenght_expression(Expression):
+    def __init__(self, ob1):
+        self.object = ob1
+
+    def __str__(self):
+        return str(self.object) + ".length"
+
+    def accept(self, visitor):
+        return visitor.visit_lenght_expression(self)
 
 
 class int_expression(Expression):
