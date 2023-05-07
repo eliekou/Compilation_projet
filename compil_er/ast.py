@@ -1,6 +1,7 @@
 class Class:
-    def __init__(self, name):
+    def __init__(self, name, parent=None):
         self.name = name
+        self.parent = parent
         self.var_declarations = []
         self.method_declarations = []
 
@@ -197,7 +198,8 @@ class ClassDeclaration:
 
 
 class Expression:
-    pass
+    def __init__(self, object1):
+        self.object = object1
 
 
 class BinaryExpression(Expression):
@@ -229,11 +231,11 @@ class new_array_expression(Expression):
 
 
 class expression_length(Expression):
-    def __init__(self, identifier):
-        self.identifier = identifier
+    def __init__(self, object1):
+        self.object = object1
 
     def __str__(self):
-        return str(self.identifier) + ".length"
+        return str(self.object) + ".length"
 
     def accept(self, visitor):
         return visitor.visit_expression_length(self)
@@ -243,11 +245,11 @@ class expression_length(Expression):
 
 
 class bool_expression(Expression):
-    def __init__(self, bool):
-        self.bool = bool
+    def __init__(self, bool1):
+        self.object = bool1
 
     def __str__(self):
-        return str(self.bool)
+        return str(self.object)
 
     def accept(self, visitor):
         return visitor.visit_bool_expression(self)
@@ -255,21 +257,32 @@ class bool_expression(Expression):
 
 class countery_expression(Expression):
     def __init__(self, identifier):
-        self.identifier = identifier
+        self.object = identifier
 
     def __str__(self):
-        return "!" + str(self.identifier)
+        return "!" + str(self.object)
 
     def accept(self, visitor):
         return visitor.visit_countery_expression(self)
 
 
-class simple_expression(Expression):
-    def __init__(self, identifier):
-        self.identifier = identifier
+class int_expression(Expression):
+    def __init__(self, int1):
+        self.int = int1
 
     def __str__(self):
-        return str(self.identifier)
+        return str(self.int)
+
+    def accept(self, visitor):
+        return visitor.visit_int_expression(self)
+
+
+class simple_expression(Expression):
+    def __init__(self, identifier):
+        self.object = identifier
+
+    def __str__(self):
+        return str(self.object)
 
     def accept(self, visitor):
         return visitor.visit_simple_expression(self)

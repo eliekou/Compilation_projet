@@ -47,6 +47,7 @@ class Parser:
         Pops the next token from the lexems list and tests its type through the tag.
         """
         next_lexem = self.show_next()
+        print(next_lexem)
 
         if next_lexem.tag != tag:
             raise ParsingException(
@@ -117,24 +118,65 @@ class Parser:
     ...
 
     def parse_expression(self):
-        id1 = self.expect("IDENTIFIER")
-        if self.show_next().tag == "ASSIGN":
-            self.expect("ASSIGN")
-            self.expect("ASSIGN")
+        if self.show_next().tag == "TRUE":
+            self.expect("TRUE")
+            return bool_expression(True)
+        if self.show_next().tag == "FALSE":
+            self.expect("FALSE")
+            return bool_expression(False)
+        if self.show_next().tag == "NO":
+            self.expect("NO")
+            expr2 = self.parse_expression()
+            return bool_expression(expr2)
+
+        if self.show_next().tag == "AND":
+            self.expect("AND")
+            expr2 = self.parse_expression()
+
+        if self.show_next().tag == "OR":
+            self.expect("OR")
+            expr2 = self.parse_expression()
+        if self.show_next().tag == "INTEGER":
+            print("NEW INTEGER EXPRESSION")
             int1 = self.expect("INTEGER")
-            return ie_Statement(id1, int1)
-        if self.show_next().tag == "INFERIOR":
-            self.expect("INFERIOR")
-            int1 = self.expect("INTEGER")
-            return ie_Statement(id1, int1)
+            # self.expect(("TERMINATOR"))
+            return int_expression(int1)
+
+        if self.show_next().tag == "IDENTIFIER":
+            id1 = self.expect("IDENTIFIER")
+
+            if self.show_next().tag == "ASSIGN":
+                self.expect("ASSIGN")
+                # self.expect("ASSIGN")
+                # int1 = self.expect("INTEGER")
+                id2 = self.parse_expression()
+                print("NEW PARSE EXPRESSION")
+                return ie_Statement(id1, id2)
+            if self.show_next().tag == "INFERIOR":
+                self.expect("INFERIOR")
+                # int1 = self.expect("INTEGER")
+                id2 = self.parse_expression()
+                print("NEW PARSE EXPRESSION")
+                return ie_Statement(id1, id2)
+            if self.show_next().tag == "AND":
+                self.expect("AND")
+                # int1 = self.expect("INTEGER")
+                id2 = self.parse_expression()
+                print("NEW PARSE EXPRESSION")
+                return ie_Statement(id1, id2)
+            else:
+                return Identifier(id1)
 
     def parse_if_statement(self):
         self.expect("IF")
         self.expect("L_PAREN")
         cond = self.parse_expression()
+        print(cond)
         self.expect("R_PAREN")
         self.expect("L_CURL_BRACKET")
         stat1 = self.parse_statement()
+        print(stat1)
+
         self.expect("R_CURL_BRACKET")
         if self.show_next().tag == "ELSE":
             self.expect("ELSE")
@@ -169,71 +211,20 @@ class Parser:
         if self.show_next().tag == "PRINTLN2":
             return self.parse_println2()
 
-        if self.show_next().tag == "IDENTIFIER":
-            return self.parse_identifier_statement()
+        """if self.show_next().tag == "IDENTIFIER":
+            return self.parse_identifier_statement()"""
 
         if self.show_next().tag == "L_CURL_BRACKET":
             self.expect("L_CURL_BRACKET")
             self.parse_statement()
-
-    def parse_program(self):
-        """
-        Parses a program which is a succession of assignments:
-        Program	::=	MainClass ( ClassDeclaration )* <EOF>
-        """
-        # BEGINNING OF parse_program
-        print('"BEGINNING OF parse_program"')
-        self.expect("CLASS")
-        self.expect("IDENTIFIER")
-        self.expect("L_CURL_BRACKET")
-        self.expect("public")
-        self.expect("static")
-        self.expect("VOID_TYPE")
-        self.expect("KW_MAIN")
-        self.expect("L_PAREN")
-        self.expect("String")
-        self.expect("KW_ARGS")
-        self.expect("CROCHET[")
-        self.expect("CROCHET]")
-        self.expect("R_PAREN")
-        self.expect("L_CURL_BRACKET")
-
-        program_node = Program(class1, classDeclaration)
-        while self.show_next().tag != "R_CURL_BRACKET":
-            if self.show_next().tag in [
-                "TYPE_INT",
-                "TYPE_CHAR",
-                "bool",
-                "TYPE_IDENTIFIER",
-            ]:
-                program_node.ClassDeclaration.append(self.parse_statement())
-                # parse_statement()
-                print("there is a statement here")
-            else:
-                print("There is an assignment here")
-                program_node.ClassDeclaration.append(self.parse_assignment())
-                # self.parse_assignment()
-
-                # program_node.ClassDeclaration.append(parse_assignment())
-        # self.expect("IDENTIFIER")
-        self.expect("R_CURL_BRACKET")
-
-        "========"
-        # End of parse_program
-        # Print the node
-        print("========")
-        print("PRINTING THE NODE")
-        print(program_node.ClassDeclaration)
-        print(program_node.classes)
-
-        # _________
-
-        main_class_node = self.parse_main_class()
-        program_node = Program(main_class=main_class_node)
-        while self.show_next().tag == "CLASS":
-            class_declaration_node = self.parse_class_declaration()
-            program_node.classes.append(class_declaration_node)
-        return program_node
+        if self.show_next().tag == "IDENTIFIER":
+            id1 = self.expect("IDENTIFIER")
+            if self.show_next().tag == "ASSIGN":
+                self.expect("ASSIGN")
+                expr = self.parse_expression()
+                print("PAAAAAAAAAAARSE")
+                self.expect("TERMINATOR")
+                return ie_Statement(id1, expr)
 
     def visit_Program(self, program):
         pass
@@ -299,13 +290,20 @@ class Parser:
 
     def parse_class_declaration(self):
         """
-        ClassDeclaration	::=	"class" "IDENTIFIER" "{" ( VarDeclaration )* ( MethodDeclaration )* "}"
+        ClassDeclaration	::=	"class" "IDENTIFIER"(extends Identifier) "{" ( VarDeclaration )* ( MethodDeclaration )* "}"
         """
+        parent_class_name = None
         self.expect("CLASS")
         class_name = self.expect("IDENTIFIER")
+
+        if self.show_next().tag == "L_PAREN":
+            self.expect("L_PAREN")
+            self.expect("EXTENDS")
+            parent_class_name = self.expect("IDENTIFIER")
+            self.expect("R_PAREN")
         self.expect("L_CURL_BRACKET")
 
-        class_node = Class(name=class_name)
+        class_node = Class(name=class_name, parent=parent_class_name)
         while self.show_next().tag != "public":
             print("self.show_next().tag", self.show_next().tag)
             # print("self.show_next().tag", self.show_next().tag)

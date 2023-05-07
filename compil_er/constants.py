@@ -9,6 +9,7 @@ LEXEM_REGEXES = [
     (r"System", "SYSTEM"),
     (r"out", "OUT"),
     (r"println", "PRINTLN"),
+    (r"extends", "EXTENDS"),
     # Special characters
     (r"\(", "L_PAREN"),
     (r"\)", "R_PAREN"),
@@ -33,7 +34,8 @@ LEXEM_REGEXES = [
     (r"\.", "PUNCTUATION"),
     # LOGICAL OPERATIONS
     (r"\|", "OR"),
-    # (r"\!",'NO')
+    (r"\!", "NO"),
+    (r"\&", "AND"),
     # RELATIONNAL OPERATIONS
     (r"\>", "SUPERIOR"),
     (r"\<", "INFERIOR"),

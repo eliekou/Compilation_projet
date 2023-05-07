@@ -120,11 +120,26 @@ class PrettyPrinter(Visitor):
             if var_decl is not None:
                 print_str2 += "\n\t" + self.visit(var_decl)
         print_str3 = []
+        print("class_parent", class_.parent)
         print("Method Declarations", class_.method_declarations)
         for method_declarations in class_.method_declarations:
             if method_declarations is not None:
                 print_str3 += self.visit(method_declarations)
         # print("STR3", print_str3)
+        if class_.parent is not None:
+            # print("class parent", class_.parent)
+            return (
+                "\nclass "
+                + str(class_.name)
+                + " extends "
+                + str(class_.parent)
+                + " {\n"
+                + "".join(print_str2)
+                + "\n\t"
+                + "".join(print_str3)
+                + "}\n"
+            )
+
         return (
             "\nclass "
             + str(class_.name)
@@ -167,6 +182,7 @@ class PrettyPrinter(Visitor):
             + "\n\n\t".join(statements)
             + "\n\t\t\treturn "
             + "".join(return_expression)
+            + ";"
             + "\n\t\t\t}\n"
         )
 
@@ -217,43 +233,22 @@ class PrettyPrinter(Visitor):
             + self.visit(if_statement.cond)
             + ") {\n\t\t\t\t"
             + self.visit(if_statement.body)
+            + ";"
             + "\n\t\t\t}"
             + "\n\t\t\telse {\n\t\t\t\t "
             + "\n\t".join(else_1)
+            + ";"
             + "}\n"
         )
 
     def visit_simple_expression(self, simple_expr):
-        return "\t" + str(simple_expr.identifier)
+        return "\t" + str(simple_expr.object)
 
     def visit_Integer(self):
         return self.value
 
     def visit_var_declaration(self, var_decl):
-        return str(var_decl.type) + "=" + str(var_decl.identifier)
-
-
-"""class SemanticAnalyser(Visitor):
-    def __init__(self):
-        self.current_class = None
-        self.current_method = None
-        self.current_scope = None
-        self.current_type = None
-        self.current_var = None
-        self.current_statement = None
-        self.current_expression = None
-        self.current_identifier = None
-        self.current_method_declaration = None
-        self.current_var_declaration = None
-        self.current_main_class = None
-
-    def visit_program(self, program):
-
-        self.current_class = program.main_class
-        self.visit(program.main_class)
-        for class_decl in program.classes:
-            self.current_class = class_decl
-            self.visit(class_decl)"""
+        return str(var_decl.type) + str(var_decl.identifier) + ";\n"
 
 
 class SemanticAnalyser(Visitor):
@@ -329,14 +324,24 @@ class SemanticAnalyser(Visitor):
             if method_declarations is not None:
                 print_str3 += self.visit(method_declarations)
                 self.DICT_method_declaration.append(print_str3)
-        """for i in print_str2:
-            if i != "\n\t":
-                self.DICT_var_declaration.append(i)"""
+        if class_.parent is not None:
+            print("class parent", class_.parent)
+            return (
+                "\nclass "
+                + str(class_.name)
+                + " extends "
+                + str(class_.parent)
+                + " {\n"
+                + "".join(print_str2)
+                + "\n\t"
+                + "".join(print_str3)
+                + "}\n"
+            )
 
-        """self.DICT_method_declaration.append(print_str3)"""
         return (
             "\nclass "
             + str(class_.name)
+            + str(class_.parent)
             + " {\n"
             + "".join(print_str2)
             + "\n\t"
@@ -499,6 +504,11 @@ class SemanticAnalyzer2(Visitor):
         else:
             self.class_names.append(class_.name)
 
+        if class_.parent is not None:
+            if str(class_.parent) not in str(self.class_names):
+                raise Exception("Parent class not defined'")
+            else:
+                self.class_names.append(class_.parent)
         for var in class_.var_declarations:
             self.visit(var)
 
@@ -508,6 +518,7 @@ class SemanticAnalyzer2(Visitor):
     def visit_method_declaration(self, method):
         """MethodDeclaration	::=	"public" Type Identifier "(" ( Type Identifier ( "," Type Identifier )* )? ")" "{" ( VarDeclaration )* ( Statement )* "return" Expression ";" "}"""
         """On va vérifier que le nom de la méthode n'est pas déjà utilisé"""
+        print("VISIT METHOD DECLARATION")
         var_declarations = []
         statements = []
         return_expression = []
@@ -531,16 +542,18 @@ class SemanticAnalyzer2(Visitor):
                     self.visit(return_expression1)
         print("self.method_names\n", self.method_names)
 
-    def visit_var(self, var):
+    def visit_var_declaration(self, var_decl):
         """On va vérifier que le nom de la variable n'est pas déja utilisé et que les types des objets
         sont les bons."""
 
-        if var.name in self.var_names:
+        print("VAR DECLARATION\n")
+
+        if str(var_decl.identifier) in str(self.var_names):
             raise Exception("Variable name already defined")
         else:
-            self.var_names.append(var.name)
+            self.var_names.append(var_decl.identifier)
 
-        if var.type.tag not in [
+        if var_decl.type.tag not in [
             "TYPE_INT",
             "boolean",
             "int[]",
@@ -548,9 +561,9 @@ class SemanticAnalyzer2(Visitor):
             "TYPE_STRING",
         ]:
             raise Exception("Unknown type: " + str(var.type))
-        if var.name.tag not in ["TYPE_IDENTIFIER"]:
-            raise Exception("Unknown type: " + str(var.name))
-        return var.type + " " + var.name + ";\n"
+        if var_decl.identifier.tag not in ["IDENTIFIER"]:
+            raise Exception("Unknown type: " + str(var_decl.identifier))
+        return str(var_decl.type) + " " + str(var_decl.identifier) + ";\n"
 
     def visit_type(self, type_):
         return type_.name
@@ -620,5 +633,6 @@ class SemanticAnalyzer2(Visitor):
     def visit_Integer(self):
         return self.value
 
-    def visit_var_declaration(self, var_decl):
-        return str(var_decl.type) + "=" + str(var_decl.identifier)
+
+"""    def visit_var_declaration(self, var_decl):
+        return str(var_decl.type) + "=" + str(var_decl.identifier)"""
