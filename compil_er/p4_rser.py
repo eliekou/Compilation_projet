@@ -47,7 +47,6 @@ class Parser:
         Pops the next token from the lexems list and tests its type through the tag.
         """
         next_lexem = self.show_next()
-        print(next_lexem)
 
         if next_lexem.tag != tag:
             raise ParsingException(
