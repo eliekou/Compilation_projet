@@ -15,8 +15,5 @@ if __name__ == "__main__":
     test2.visit_program(parser.parse())"""
     test1.visit_program(parser.parse())
 
-    """test3 = SemanticAnalyser()
-    test3.visit_program(parser.parse())"""
-
     """test4 = SemanticAnalyzer2()
     test4.visit_program(parser.parse())"""

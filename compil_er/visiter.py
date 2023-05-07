@@ -123,8 +123,7 @@ class PrettyPrinter(Visitor):
             if var_decl is not None:
                 print_str2 += "\n\t" + self.visit(var_decl)
         print_str3 = []
-        print("class_parent", class_.parent)
-        print("Method Declarations", class_.method_declarations)
+
         for method_declarations in class_.method_declarations:
             if method_declarations is not None:
                 print_str3 += self.visit(method_declarations)
@@ -227,9 +226,7 @@ class PrettyPrinter(Visitor):
         return "System.out.println(" + str(system_out_println.expr) + ");"
 
     def visit_ie_statement(self, ie_statement):
-        return (
-            str((ie_statement.identifier)) + "=" + str((ie_statement.expression)) + ";"
-        )
+        return str((ie_statement.identifier)) + "=" + str((ie_statement.expression))
 
     def visit_if_statement(self, if_statement):
         body_1 = []
@@ -258,15 +255,12 @@ class PrettyPrinter(Visitor):
         )
 
     def visit_while_statement(self, while_statement):
-        print("3VISITING WHILE STATEMENT")
         stats = []
         print("while_statement", while_statement.body)
         if while_statement.body is not None:
             for stat in while_statement.body:
-                print("stat", stat)
                 if stat is not None:
                     stats.append(self.visit(stat))
-                    print("stata", stat)
 
         return (
             "\twhile ("
@@ -313,8 +307,6 @@ class SemanticAnalyzer2(Visitor):
         self.visit(main_class.statement)
 
     def visit_class(self, class_):
-        print("VISIT CLASS DECLARATION")
-
         if str(class_.name) in str(self.class_names):
             raise Exception("Class name already defined")
 
@@ -364,7 +356,7 @@ class SemanticAnalyzer2(Visitor):
         sont les bons."""
 
         if str(var_decl.identifier) in str(self.var_names):
-            raise Exception("Variable name already defined")
+            raise Exception("Variable name already defined in another declaration")
         else:
             self.var_names.append(var_decl.identifier)
 
@@ -372,8 +364,6 @@ class SemanticAnalyzer2(Visitor):
             "TYPE_INT",
             "boolean",
             "int[]",
-            "TYPE_ID",
-            "TYPE_STRING",
         ]:
             raise Exception("Unknown type: " + str(var.type))
         if var_decl.identifier.tag not in ["IDENTIFIER"]:
@@ -449,7 +439,3 @@ class SemanticAnalyzer2(Visitor):
 
     def visit_Integer(self):
         return self.value
-
-
-"""    def visit_var_declaration(self, var_decl):
-        return str(var_decl.type) + "=" + str(var_decl.identifier)"""

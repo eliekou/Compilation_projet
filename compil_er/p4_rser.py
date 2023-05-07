@@ -39,7 +39,7 @@ class Parser:
         try:
             return self.lexems[n - 1]
         except IndexError:
-            print("")
+            pass
             # self.error("No more lexems left.")
 
     def expect(self, tag):
@@ -89,7 +89,8 @@ class Parser:
 
     def parse_expression(self):
         """La fonction parse_expression doit, pour respecter la grammaire, prendre en compte toutes les différentes
-        expressions y compris toutes les opérations logiques entre expressions."""
+        expressions y compris toutes les opérations logiques entre expressions. On fait donc plusieurs fois appel à la
+        fonction parse_expression dans la fonction parse_expression."""
 
         if self.show_next().tag == "TRUE":
             self.expect("TRUE")
@@ -110,7 +111,6 @@ class Parser:
             self.expect("OR")
             expr2 = self.parse_expression()
         if self.show_next().tag == "INTEGER":
-            print("NEW INTEGER EXPRESSION")
             int1 = self.expect("INTEGER")
 
             return int_expression(int1)
@@ -122,19 +122,19 @@ class Parser:
                 self.expect("ASSIGN")
 
                 id2 = self.parse_expression()
-                print("NEW PARSE EXPRESSION")
+
                 return ie_Statement(id1, id2)
             if self.show_next().tag == "INFERIOR":
                 self.expect("INFERIOR")
 
                 id2 = self.parse_expression()
-                print("NEW PARSE EXPRESSION")
+
                 return ie_Statement(id1, id2)
             if self.show_next().tag == "AND":
                 self.expect("AND")
 
                 id2 = self.parse_expression()
-                print("NEW PARSE EXPRESSION")
+
                 return ie_Statement(id1, id2)
             else:
                 return Identifier(id1)
@@ -144,7 +144,7 @@ class Parser:
         self.expect("IF")
         self.expect("L_PAREN")
         cond = self.parse_expression()
-        print(cond)
+
         if_stat = If_stat(cond)
         self.expect("R_PAREN")
         self.expect("L_CURL_BRACKET")
@@ -177,7 +177,6 @@ class Parser:
         self.expect("R_PAREN")
         self.expect("L_CURL_BRACKET")
         while self.show_next().tag != "R_CURL_BRACKET":
-            print("WE ARE IN THE WHILE LOOP")
             stat1 = self.parse_statement()
             print
             while_stat.body.append(stat1)
@@ -220,7 +219,7 @@ class Parser:
             if self.show_next().tag == "ASSIGN":
                 self.expect("ASSIGN")
                 expr = self.parse_expression()
-                print("PAAAAAAAAAAARSE")
+
                 self.expect("TERMINATOR")
                 return ie_Statement(id1, expr)
 
@@ -314,8 +313,8 @@ class Parser:
                 self.expect("R_CURL_BRACKET")
                 return class_node
 
-            else:
-                print("ERROR", self.show_next().tag)
+            """else:
+                print("ERROR", self.show_next().tag)"""
 
         if self.show_next().tag == "public":
             method_declaration_node = self.parse_method_declaration()
