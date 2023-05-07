@@ -68,7 +68,9 @@ Statement	::=	"{" ( Statement )* "}"
 
 Expression	::=	Expression ( "&&" | "<" | "+" | "-" | "*" ) Expression
 |	Expression "[" Expression "]"
+
 |	Expression "." "length"
+
 |	Expression "." Identifier "(" ( Expression ( "," Expression )* )? ")"
 |	<INTEGER_LITERAL>
 |	"true"
