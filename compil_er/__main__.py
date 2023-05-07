@@ -20,5 +20,3 @@ if __name__ == "__main__":
 
     """test4 = SemanticAnalyzer2()
     test4.visit_program(parser.parse())"""
-
-# print(test3)

@@ -56,5 +56,4 @@ LEXEM_REGEXES = [
     (r"void", "VOID_TYPE"),
     (r"\d+", "INTEGER"),
     (r"\w+", "IDENTIFIER"),
-    # (r'[a-z]\w*', 'IDENTIFIER'),
 ]

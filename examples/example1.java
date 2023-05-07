@@ -15,7 +15,7 @@ class Fac {
     }
 }
 
-"""class Fac{
+class Fac1{
     public int ComputeFac(int num){
         int num_aux ;
         if (num < 1){
@@ -24,5 +24,5 @@ class Fac {
             num_aux = 2 ;}
         return num_aux ;
     }
-}""""
+}
 

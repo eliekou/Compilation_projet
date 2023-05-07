@@ -85,34 +85,12 @@ class Parser:
 
         return type1
 
-    def parse_assignment(self):
-        self.expect("SYSTEM")
-        self.expect("PUNCTUATION")
-        self.expect("OUT")
-        self.expect("PUNCTUATION")
-        self.expect("PRINTLN")
-
-        self.expect("L_PAREN")
-        self.expect("GUILLEMET")
-        while self.show_next().tag != "GUILLEMET":
-            self.expect("IDENTIFIER")
-        self.expect("GUILLEMET")
-        self.expect("R_PAREN")
-
-        self.expect("TERMINATOR")
-
-    def parse_Vardeclaration(self):
-        self.expect("TYPE_INT")
-        self.expect("IDENTIFIER")
-        self.expect("TERMINATOR")
-
-        ...
-
     ...
-    """La fonction parse_expression doit, pour respecter la grammaire, prendre en compte toutes les différentes 
-    expressions y compris toutes les opérations logiques entre expressions."""
 
     def parse_expression(self):
+        """La fonction parse_expression doit, pour respecter la grammaire, prendre en compte toutes les différentes
+        expressions y compris toutes les opérations logiques entre expressions."""
+
         if self.show_next().tag == "TRUE":
             self.expect("TRUE")
             return bool_expression(True)
@@ -162,25 +140,55 @@ class Parser:
                 return Identifier(id1)
 
     def parse_if_statement(self):
+        """Va parser les statement avec if et else"""
         self.expect("IF")
         self.expect("L_PAREN")
         cond = self.parse_expression()
         print(cond)
+        if_stat = If_stat(cond)
         self.expect("R_PAREN")
         self.expect("L_CURL_BRACKET")
-        stat1 = self.parse_statement()
-        print(stat1)
+        while self.show_next().tag != "R_CURL_BRACKET":
+            stat1 = self.parse_statement()
+            if_stat.body.append(stat1)
 
         self.expect("R_CURL_BRACKET")
         if self.show_next().tag == "ELSE":
             self.expect("ELSE")
             self.expect("L_CURL_BRACKET")
-            stat2 = self.parse_statement()
+            while self.show_next().tag != "R_CURL_BRACKET":
+                stat2 = self.parse_statement()
+                if_stat.else_body.append(stat2)
+
             self.expect("R_CURL_BRACKET")
-            return If_stat(cond, stat1, stat2)
-        return If_stat(cond, stat1, None)
+            return if_stat
+
+        return if_stat
+
+    def parse_while_statement(self):
+        """Va parser les statement avec while"""
+
+        self.expect("WHILE")
+        self.expect("L_PAREN")
+        cond = self.parse_expression()
+
+        while_stat = While_stat(cond)
+
+        self.expect("R_PAREN")
+        self.expect("L_CURL_BRACKET")
+        while self.show_next().tag != "R_CURL_BRACKET":
+            print("WE ARE IN THE WHILE LOOP")
+            stat1 = self.parse_statement()
+            print
+            while_stat.body.append(stat1)
+
+        self.expect("R_CURL_BRACKET")
+
+        return while_stat
 
     def parse_println2(self):
+        """Va parser les statement d'affichage"""
+
         self.expect("PRINTLN2")
         self.expect("L_PAREN")
         self.expect("GUILLEMET")
@@ -191,16 +199,15 @@ class Parser:
         self.expect("TERMINATOR")
         return System_out_println(id2)
 
-    def parse_identifier_statement(self):
-        id1 = self.expect("IDENTIFIER")
-        self.expect("ASSIGN")
-        int1 = self.expect("INTEGER")
-        self.expect("TERMINATOR")
-        return ie_Statement(id1, int1)
-
     def parse_statement(self):
+        """La fonction parse_statement qui en fonction des cas va renvoyer sur toutes les autres fonctions
+        pour parser les diffférents types de statements"""
+
         if self.show_next().tag == "IF":
             return self.parse_if_statement()
+
+        if self.show_next().tag == "WHILE":
+            return self.parse_while_statement()
 
         if self.show_next().tag == "PRINTLN2":
             return self.parse_println2()
@@ -217,9 +224,6 @@ class Parser:
                 self.expect("TERMINATOR")
                 return ie_Statement(id1, expr)
 
-    def visit_Program(self, program):
-        pass
-
     def parse_program_2(self):
         """
         Parses a program which is a succession of assignments:
@@ -227,12 +231,9 @@ class Parser:
         """
         main_class_node = self.parse_main_class()
         class_declarations = []
-        # Ca devrait etre un while mais problème de consommation de léxèmes
-        if self.show_next() is not None:
-            print("show next is not none", self.show_next().tag)
 
+        if self.show_next() is not None:
             while self.show_next().tag == "CLASS":
-                print("ee", self.show_next().tag)
                 class_node = self.parse_class_declaration()
                 class_declarations.append(class_node)
 
@@ -248,6 +249,7 @@ class Parser:
         """
         self.expect("CLASS")
         id = self.expect("IDENTIFIER")
+        """Toutes les classes principales doivent s'appeler Main, cf Grammaire"""
         if id.value != "Main":
             raise ParsingException(
                 f"Main class is expected to be named 'Main', is named {id.value}"
@@ -274,6 +276,8 @@ class Parser:
         return main_class_node
 
     def parse_return(self):
+        """Va parser les return des méthodes"""
+
         self.expect("RETURN")
         id1 = self.expect("IDENTIFIER")
         self.expect("TERMINATOR")
@@ -296,8 +300,6 @@ class Parser:
 
         class_node = Class(name=class_name, parent=parent_class_name)
         while self.show_next().tag != "public":
-            print("self.show_next().tag", self.show_next().tag)
-            # print("self.show_next().tag", self.show_next().tag)
             if (
                 self.show_next().tag == "TYPE_INT"
                 or self.show_next().tag == "TYPE_CHAR"
@@ -316,7 +318,6 @@ class Parser:
                 print("ERROR", self.show_next().tag)
 
         if self.show_next().tag == "public":
-            # print("There is a public hereDDDDDDDDD")
             method_declaration_node = self.parse_method_declaration()
             class_node.method_declarations.append(method_declaration_node)
 
@@ -328,7 +329,7 @@ class Parser:
         """
         MethodDeclaration	::=	"public" Type Identifier "(" ( Type Identifier ( "," Type Identifier )* )? ")" "{" ( VarDeclaration )* ( Statement )* "return" Expression ";" "}"
         """
-        # self.expect("PUBLIC")
+
         self.expect("public")
         method_type = self.parse_type()
         method_name = self.expect("IDENTIFIER")
@@ -389,6 +390,7 @@ class Parser:
                     "NOT",
                     "L_CURL_BRACKET",
                     "IF",
+                    "WHILE",
                     "KW_WHILE",
                     "KW_SYSTEM",
                     "KW_OUT",
@@ -398,10 +400,6 @@ class Parser:
                     "KW_PARSEINT",
                 ]:
                     method_node.statements.append(self.parse_statement())
-
-            """self.expect("RETURN")
-            method_node.return_expression = self.expect("IDENTIFIER")
-            self.expect("TERMINATOR")"""
 
             return1 = self.parse_return()
             method_node.return_expression.append(return1)
@@ -417,8 +415,5 @@ class Parser:
         var_type = self.parse_type()
         var_name = self.expect("IDENTIFIER")
         self.expect("TERMINATOR")
-        """print(
-            "Var decl has been parsed",
-            Vardeclaration(type=var_type, identifier=var_name),
-        )"""
+
         return Vardeclaration(type=var_type, identifier=var_name)

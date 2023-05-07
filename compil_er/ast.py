@@ -85,7 +85,9 @@ class Param:
         return visitor.visit_param(self)
 
 
-# Abstract class Statement
+"""On va maintenant définir les différents Statement qui héritent de la classe abstraite Statement"""
+
+
 class Statement:
     pass
 
@@ -103,25 +105,43 @@ class ie_Statement(Statement):
 
 
 class If_stat(Statement):
-    def __init__(self, cond, body, Else):
+    def __init__(self, cond):
         self.cond = cond
-        self.body = body
-        self.Else = Else
+        self.body = []
+        self.else_body = []
 
     def __str__(self):
         return (
             "if ("
             + str(self.cond)
             + "){\n"
-            + str(self.body)
+            + "\n".join([str(stat) for stat in self.body])
             + "} "
             + "else {\n"
-            + str(self.Else)
+            + "\n".join([str(stat) for stat in self.else_body])
             + "}"
         )
 
     def accept(self, visitor):
         return visitor.visit_if_statement(self)
+
+
+class While_stat(Statement):
+    def __init__(self, cond):
+        self.cond = cond
+        self.body = []
+
+    def __str__(self):
+        return (
+            "while ("
+            + str(self.cond)
+            + ") {\n"
+            + "\n".join([str(stat) for stat in self.body])
+            + "}"
+        )
+
+    def accept(self, visitor):
+        return visitor.visit_while_statement(self)
 
 
 class System_out_println(Statement):
@@ -161,14 +181,6 @@ class MainClass:
     def __init__(self, statement):
         self.statement = statement
 
-    """def __str__(self):
-        return (
-            "class Main"
-            + "{ public static void main (String []) {}"
-            + str(self.statement)
-            + "}"
-        )"""
-
     def accept(self, visitor):
         return visitor.visit_main_class(self)
 
@@ -195,6 +207,9 @@ class ClassDeclaration:
 
     def accept(self, visitor):
         return visitor.visit_class_declaration(self)
+
+
+"""On va maintenant définir les différentes expressions qui héritent toutes de la classe Expression"""
 
 
 class Expression:

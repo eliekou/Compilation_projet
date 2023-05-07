@@ -4,7 +4,7 @@ Réalisé par Elie Kouyoumdjian
 https://github.com/eliekou/Compilation_projet
 
 
-Le projet présente le travail réalisé pour le cour de compilation.
+Le projet présente le travail réalisé pour le cours de compilation.
 
 
 ## RENDU
@@ -17,8 +17,10 @@ Le sujet choisi est le front-end du mini-Java. Le  rendu du projet comprend:
 -   Un semantic Analyser sous forme de visiteur
 
 
-Et aussi le dossier examples avec les programmes de mini-Java pour lequel j'ai teste le compilateur,
-et le fichier constants. Pour tous les fichiers exemples, la chaine fonctionne et on peut observer les résultats des deux visiteurs,
+Et aussi le dossier examples avec les programmes de mini-Java écrit pour lequel j'ai teste le compilateur,
+et le fichier constants contenant les léxèmes.
+
+Pour tous les fichiers exemples, la chaine fonctionne et on peut observer les résultats des deux visiteurs,
 le Pretty printer et le Semantic Analyser.
 
 
@@ -29,7 +31,7 @@ Pour la grammaire, le mini-Java n'ayant pas de grammaire officielle,  j'ai comme
 Dans les différents fichiers, les fonctions sont commentées. Pour tester les différents visiteurs il faut décommenter certaines ligne du fichier main.py, il l'est pour l'instant mis sur le pretty printer.
 Le visiteur checker va provoquer des exceptions à chaque erreur qu'il trouve.
 
-Pour lancer le programme, il faut run le fichier main.py et donner en arguments le fichier java, il y a 7 exemples dans le dossier examples.
+Pour lancer le programme, il faut run le fichier main.py et donner en arguments le fichier java, il y a 8 exemples dans le dossier examples.
 
 Voici la grammaire finalement choisi, légèrement modifiée par rapport au lien donné plus haut:
 
@@ -77,7 +79,7 @@ Expression	::=	Expression ( "&&" | "<" | "+" | "-" | "*" ) Expression
 |	"true"
 |	"false"
 |	Identifier
-|	"this"
+
 |	"new" "int" "[" Expression "]"
 |	"new" Identifier "(" ")"
 |	"!" Expression
