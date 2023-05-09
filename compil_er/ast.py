@@ -93,6 +93,8 @@ class Statement:
 
 
 class ie_Statement(Statement):
+    """Va concerner les statement de type identifier = expression"""
+
     def __init__(self, identifier, expression):
         self.identifier = identifier
         self.expression = expression

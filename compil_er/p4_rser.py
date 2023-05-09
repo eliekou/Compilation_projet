@@ -246,6 +246,8 @@ class Parser:
         """
         MainClass	::=	"class" "Main" "{" "public" "static" "void" "main" "(" "String" "[" "]" "args" ")" "{" Statement "}" "}"
         """
+        statement_node = None  # Pour gérer le cas d'une classe Main vide
+
         self.expect("CLASS")
         id = self.expect("IDENTIFIER")
         """Toutes les classes principales doivent s'appeler Main, cf Grammaire"""
@@ -316,7 +318,7 @@ class Parser:
             """else:
                 print("ERROR", self.show_next().tag)"""
 
-        if self.show_next().tag == "public":
+        while self.show_next().tag == "public":
             method_declaration_node = self.parse_method_declaration()
             class_node.method_declarations.append(method_declaration_node)
 
@@ -404,6 +406,15 @@ class Parser:
             method_node.return_expression.append(return1)
             self.expect("R_CURL_BRACKET")
 
+            return method_node
+        else:
+            # Cas d'une méthode vide
+            self.expect("R_PAREN")
+            self.expect("L_CURL_BRACKET")
+            self.expect("R_CURL_BRACKET")
+            method_node = MethodDeclaration(
+                type1=method_type, name=method_name, params=None
+            )
             return method_node
 
     def parse_var_declaration(self):

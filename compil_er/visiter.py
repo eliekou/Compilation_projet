@@ -108,13 +108,13 @@ class PrettyPrinter(Visitor):
         """
         MainClass	::=	"class" Identifier "{" "public" "static" "void" "main" "(" "String" "[" "]" Identifier ")" "{" Statement "}" "}"
         """
-
-        return (
-            "class Main {\n\tpublic static void main (String args[]) {\n\t"
-            + "\t"
-            + self.visit(main_class.statement)
-            + "\n\t}\n}"
-        )
+        if main_class.statement is not None:
+            return (
+                "class Main {\n\tpublic static void main (String args[]) {\n\t"
+                + "\t"
+                + self.visit(main_class.statement)
+                + "\n\t}\n}"
+            )
 
     def visit_class(self, class_):
         """ClassDeclaration	::=	"class" Identifier ( "extends" Identifier )? "{" ( VarDeclaration )* ( MethodDeclaration )* "}"""
@@ -281,15 +281,16 @@ class PrettyPrinter(Visitor):
         return str(var_decl.type) + str(var_decl.identifier) + ";\n"
 
 
-class SemanticAnalyzer2(Visitor):
+class SemanticAnalyzer(Visitor):
 
     """
     Le visiteur Analyseur Sémantique va visiter le programme et vérifier certaines erreurs possibles:
 
-    - la répitition de deux fois le meme nom de classe
+    - la répétition de deux fois le meme nom de classe
     - la répitition de deux fois le meme nom de méthode
     - la répitition de deux fois le meme nom de variable comme declaration dans le Main
     - l'héritage d'une classe Parent non définie dans le meme programme
+    - l'utilisation d'une variable non préalablement déclarée
     """
 
     def __init__(self):
@@ -304,18 +305,19 @@ class SemanticAnalyzer2(Visitor):
             self.visit(class_decl)
 
     def visit_main_class(self, main_class):
-        self.visit(main_class.statement)
+        if main_class.statement is not None:
+            self.visit(main_class.statement)
 
     def visit_class(self, class_):
         if str(class_.name) in str(self.class_names):
-            raise Exception("Class name already defined")
+            raise Exception(f"Class name {class_.name} already defined")
 
         else:
             self.class_names.append(class_.name)
 
         if class_.parent is not None:
             if str(class_.parent) not in str(self.class_names):
-                raise Exception("Parent class not defined'")
+                raise Exception(f"Parent class {class_.parent} not defined'")
             else:
                 self.class_names.append(class_.parent)
         for var in class_.var_declarations:
@@ -333,7 +335,9 @@ class SemanticAnalyzer2(Visitor):
         return_expression = []
 
         if str(method.name) in str(self.method_names):
-            raise Exception("Method name already defined for another method")
+            raise Exception(
+                f"Method name {method.name} already defined for another method"
+            )
         else:
             self.method_names.append(method.name)
 
@@ -349,15 +353,18 @@ class SemanticAnalyzer2(Visitor):
             for return_expression1 in method.return_expression:
                 if return_expression1 is not None:
                     self.visit(return_expression1)
-        print("self.method_names\n", self.method_names)
+        
 
     def visit_var_declaration(self, var_decl):
         """On va vérifier que le nom de la variable n'est pas déja utilisé et que les types des objets
         sont les bons."""
 
         if str(var_decl.identifier) in str(self.var_names):
-            raise Exception("Variable name already defined in another declaration")
+            raise Exception(
+                f"Variable name {var_decl.identifier.value} already defined in another declaration"
+            )
         else:
+            
             self.var_names.append(var_decl.identifier)
 
         if var_decl.type.tag not in [
@@ -368,7 +375,241 @@ class SemanticAnalyzer2(Visitor):
             raise Exception("Unknown type: " + str(var.type))
         if var_decl.identifier.tag not in ["IDENTIFIER"]:
             raise Exception("Unknown type: " + str(var_decl.identifier))
-        return str(var_decl.type) + " " + str(var_decl.identifier) + ";\n"
+        
+
+    def visit_type(self, type_):
+        return type_.name
+
+    def visit_binary_expression(self, binary_expression):
+        return (
+            binary_expression.left
+            + " "
+            + binary_expression.op
+            + " "
+            + binary_expression.right
+        )
+
+    def visit_new_expression(self, new_expression):
+        return "new " + str(new_expression.name) + "()"
+
+    def visit_expression_length(self, expression_length):
+        return expression_length.name + ".length"
+
+    def visit_identifier(self, identifier):
+        if identifier.id.tag not in ["IDENTIFIER"]:
+            raise Exception(
+                "Unknown type: "
+                + str(identifier.id)
+                + "Was expecting type IDENTIFIER got "
+                + str(identifier.id.tag)
+            )
+        
+
+    def visit_bool_expression(self, bool_expression):
+        return str(bool_expression.value)
+
+    def visit_system_out_println(self, system_out_println):
+        if system_out_println.expr.tag not in [
+            "IDENTIFIER",
+        ]:
+            raise Exception("Unknown type: " + str(system_out_println.expr))
+        a = self.visit(system_out_println.expr)
+
+        return "System.out.println(" + str(system_out_println.expr) + ");"
+
+    def visit_ie_statement(self, ie_statement):
+        """On vérifie que l'on ne peut pas faire de déclaration sur une variable non déclarée"""
+
+        if ie_statement.identifier.tag not in ["IDENTIFIER"]:
+            raise Exception("Unknown type: " + str(ie_statement.identifier))
+        if str(ie_statement.identifier) not in str(self.var_names):
+            print(self.var_names)
+            raise Exception(
+                f"Variable {ie_statement.identifier.value} is not yet defined, cannot be used. "
+            )
+        return (
+            str((ie_statement.identifier)) + "=" + str((ie_statement.expression)) + (";")
+        )
+
+    def visit_if_statement(self, if_statement):
+        body_1 = []
+        else_1 = []
+
+        if if_statement.body is not None:
+            for body in if_statement.body:
+                if body is not None:
+                    body_1.append(self.visit(body))
+        if if_statement.else_body is not None:
+            for else_ in if_statement.else_body:
+                if else_ is not None:
+                    else_1.append(self.visit(else_))
+
+        
+
+    def visit_while_statement(self, while_statement):
+        stats = []
+        print("while_statement", while_statement.body)
+        if while_statement.body is not None:
+            for stat in while_statement.body:
+                if stat is not None:
+                    stats.append(self.visit(stat))
+
+        
+
+    def visit_simple_expression(self, simple_expr):
+        return "\t" + str(simple_expr.object)
+
+    def visit_Integer(self):
+        return self.value
+
+
+
+
+
+class SemanticAnalyser2(Visitor):
+    """On fait un second analyseur sémantique qui respecte plus le système de clé-hash
+    Cela permet de prendre en compte les différents scopes pour les déclarations de variables"""
+
+    def __init__(self):
+        self.symbols_table = {}
+        self.visit_class_current = None
+        self.visit_method_current = None
+        self.place = None
+
+    def visit_program(self, program):
+        # self.symbols_table.append({})
+
+        self.visit(program.main_class)
+
+        for class_decl in program.classes:
+            print("class_decl\n")
+            print(class_decl)
+            self.visit(class_decl)
+
+    def visit_main_class(self, main_class):
+        print("a")
+
+    def visit_class(self, class_):
+        """if str(class_.name) in str(self.class_names):
+            raise Exception("Class name already defined")
+
+        else:"""
+        class_name = class_.name.value
+        class_table = {}
+        self.symbols_table[class_name]= class_table
+        self.visit_class_current = (
+            class_name # On garde en mémoire la classe visitée actuellement
+        )
+        print("self.symbols_table\n", self.symbols_table)
+        
+        for var in class_.var_declarations:
+            self.place = "Var"
+            self.visit(var)
+        for method in class_.method_declarations:
+            self.visit(method)
+
+    def visit_method_declaration(self, method):
+        """MethodDeclaration	::=	"public" Type Identifier "(" ( Type Identifier ( "," Type Identifier )* )? ")" "{" ( VarDeclaration )* ( Statement )* "return" Expression ";" "}"""
+        """On va vérifier que le nom de la méthode n'est pas déjà utilisé"""
+        self.visit_method_current = method.name.value
+
+        method_name = method.name.value
+        method_table = {}
+        class_table = self.symbols_table[self.visit_class_current]
+        class_table[method_name] = method_table
+
+        # self.symbols_table.append(method_table)
+
+        print("self.symbols_table\n", self.symbols_table)
+        
+
+        if method.var_declarations is not None:
+            for var_decl in method.var_declarations:
+                if var_decl is not None:
+                    self.visit(var_decl)
+        if method.statements is not None:
+            for statement in method.statements:
+                if statement is not None:
+                    self.visit(statement)
+        if method.return_expression is not None:
+            for return_expression1 in method.return_expression:
+                if return_expression1 is not None:
+                    self.visit(return_expression1)
+        
+
+    def visit_var_declaration(self, var_decl):
+        """On va vérifier que le nom de la variable n'est pas déja utilisé et que les types des objets
+        sont les bons."""
+        var_name = var_decl.identifier.value
+        if self.visit_method_current is not None:
+            method_table = self.symbols_table[self.visit_class_current][
+                self.visit_method_current
+            ]
+        else:
+            method_table = self.symbols_table[self.visit_class_current]
+        print(self.symbols_table)
+        if var_name in method_table:
+            raise Exception(
+                f"Variable name {var_decl.identifier.value} already defined in another declaration"
+            )
+        method_table[var_name] = var_decl.type
+
+        if var_decl.type.tag not in [
+            "TYPE_INT",
+            "boolean",
+            "int[]",
+        ]:
+            raise Exception("Unknown type: " + str(var.type))
+        if var_decl.identifier.tag not in ["IDENTIFIER"]:
+            raise Exception("Unknown type: " + str(var_decl.identifier))
+        print(self.symbols_table)
+
+    def visit_ie_statement(self, ie_statement):
+        """On vérifie que l'on ne peut pas faire de déclaration sur une variable non déclarée"""
+
+        var_name_used = ie_statement.identifier.value
+
+        class_table = self.symbols_table[self.visit_class_current]
+        #Key2 va vérifier la déclaration au niveau de la méthode
+        if self.visit_method_current is not None:
+            method_table = self.symbols_table[self.visit_class_current][self.visit_method_current]
+            key2=  method_table.get(var_name_used)
+        else:
+            key2 = None
+
+        #Key va vérifier la déclaration au niveau de la classe
+        key = class_table.get(var_name_used)
+        print("method_table\n", method_table)
+        print("var_name_used",var_name_used)
+        
+        
+        if key2 is None and key is None:
+            #Cas ou la variables n'a jamais été déclarée
+            raise Exception(
+                f"Variable {ie_statement.identifier.value} is not yet defined, cannot be used. "
+            )
+        else:
+            pass
+        print("test")
+
+    def visit_if_statement(self, if_statement):
+        body_1 = []
+        else_1 = []
+
+        if if_statement.body is not None:
+            for body in if_statement.body:
+                if body is not None:
+                    body_1.append(self.visit(body))
+        if if_statement.else_body is not None:
+            for else_ in if_statement.else_body:
+                if else_ is not None:
+                    else_1.append(self.visit(else_))
+
+    def visit_simple_expression(self, simple_expr):
+        return "\t" + str(simple_expr.object)
+
+    def visit_Integer(self):
+        return self.value
 
     def visit_type(self, type_):
         return type_.name
@@ -409,33 +650,3 @@ class SemanticAnalyzer2(Visitor):
         a = self.visit(system_out_println.expr)
 
         return "System.out.println(" + str(system_out_println.expr) + ");"
-
-    def visit_ie_statement(self, ie_statement):
-        if ie_statement.identifier.tag not in ["IDENTIFIER"]:
-            raise Exception("Unknown type: " + str(ie_statement.identifier))
-
-        return (
-            str((ie_statement.identifier)) + "=" + str((ie_statement.expression) + ";")
-        )
-
-    def visit_if_statement(self, if_statement):
-        else_1 = []
-        if if_statement.Else is not None:
-            else_1.append(self.visit(if_statement.Else))
-
-        return (
-            "\tif ("
-            + self.visit(if_statement.cond)
-            + ") {\n\t\t\t\t"
-            + self.visit(if_statement.body)
-            + "\n\t\t\t}"
-            + "\n\t\t\telse {\n\t\t\t\t "
-            + "\n\t".join(else_1)
-            + "}\n"
-        )
-
-    def visit_simple_expression(self, simple_expr):
-        return "\t" + str(simple_expr.identifier)
-
-    def visit_Integer(self):
-        return self.value
