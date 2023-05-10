@@ -14,15 +14,15 @@ Le sujet choisi est le front-end du mini-Java. Le  rendu du projet comprend:
 - un parseur
 - l'AST
 - Un pretty printer sous forme de visiteur
-- Un semantic Analyser sous forme de visiteur ( SemanticAnalyser1 et 2, donc en réalité 2 mais le deuxième n'est pas abouti)
+- Un semantic Analyser sous forme de visiteur ( SemanticAnalyser1 et 2, donc en réalité 2 analyseur sémantique mais le deuxième n'est pas complètement abouti: il permet de relever certaines erreurs de déclaration en prenant en compte les scopes, mais comporte quelques erreurs. )
 
 Et aussi le dossier examples avec les programmes de mini-Java écrit pour lequel j'ai teste le compilateur,
-et le fichier constants contenant les léxèmes.
+et le fichier constants contenant les lexèmes.
 
 Pour tous les fichiers exemples, la chaine fonctionne et on peut observer les résultats des deux visiteurs,
 le Pretty printer et le Semantic Analyser.
 
-Pour la grammaire, le mini-Java n'ayant pas de grammaire officielle,  j'ai commencé par utiliser une grammaire très simple puis j'ai amélioré au fur et à mesure du déroulement du projet. Finalement je suis arrivé à la grammaire de mini-Java présente au lien suivant <http://www.cs.tufts.edu/~sguyer/classes/comp181-2006/minijava.html>, de manière légèrement modifiée (voir grammaire choisi plus bas).
+Pour la grammaire, le mini-Java n'ayant pas de grammaire officielle,  j'ai commencé par utiliser une grammaire très simple puis j'ai amélioré au fur et à mesure du déroulement du projet. Finalement je suis arrivé à la grammaire de mini-Java présente au lien suivant <http://www.cs.tufts.edu/~sguyer/classes/comp181-2006/minijava.html>, de manière légèrement modifiée (voir grammaire choisie pour mon projet plus bas).
 
 ## DOCUMENTATION
 
@@ -37,7 +37,7 @@ Voici la grammaire finalement choisi, légèrement modifiée par rapport au lien
 
 Program::= MainClass ( ClassDeclaration )* <EOF>
 
-MainClass ::= "class" Identifier "{" "public" "static" "void" "main" "(" "String" "[" "]" Identifier ")" "{" Statement "}" "}"
+MainClass ::= "class" Identifier "{" "public" "static" "void" "main" "(" "String" "[" "]" Identifier ")" "{" (Statement)* "}" "}"
 
 ClassDeclaration ::= "class" Identifier ( "extends" Identifier )? "{" ( VarDeclaration )*( MethodDeclaration )* "}"
 
@@ -50,7 +50,7 @@ Type ::= "int" "[" "]"
 | "int"
 | Identifier
 
-Statement ::= "{" ( Statement )* "}"
+Statement ::=
 | "if" "(" Expression ")" "{" Statement "}" "else" {" Statement "}"
 | "while" "(" Expression ")" "{" Statement "}"
 | "System.out.println" "(" Expression ")" ";"

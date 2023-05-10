@@ -99,6 +99,7 @@ class PrettyPrinter(Visitor):
     avec les bonnes indentations et les accolades."""
 
     def visit_program(self, program):
+        print("\n######## Pretty Printer #######\n")
         print_str = self.visit(program.main_class)
         for class_decl in program.classes:
             print_str += self.visit(class_decl)
@@ -108,11 +109,15 @@ class PrettyPrinter(Visitor):
         """
         MainClass	::=	"class" Identifier "{" "public" "static" "void" "main" "(" "String" "[" "]" Identifier ")" "{" Statement "}" "}"
         """
-        if main_class.statement is not None:
+        print_statements = []
+        for stat in main_class.statements:
+            if stat is not None:
+                print_statements += "\n\t" + self.visit(stat)
+        if main_class.statements is not None:
             return (
                 "class Main {\n\tpublic static void main (String args[]) {\n\t"
                 + "\t"
-                + self.visit(main_class.statement)
+                + "".join(print_statements)
                 + "\n\t}\n}"
             )
 
@@ -195,11 +200,9 @@ class PrettyPrinter(Visitor):
 
     def visit_binary_expression(self, binary_expression):
         return (
-            binary_expression.left
-            + " "
-            + binary_expression.op
-            + " "
-            + binary_expression.right
+            str(binary_expression.left)
+            + str(binary_expression.op.value)
+            + str(binary_expression.right)
         )
 
     def visit_new_expression(self, new_expression):
@@ -305,8 +308,10 @@ class SemanticAnalyzer(Visitor):
             self.visit(class_decl)
 
     def visit_main_class(self, main_class):
-        if main_class.statement is not None:
-            self.visit(main_class.statement)
+        if main_class.statements is not None:
+            for stat in main_class.statements:
+                if stat is not None:
+                    self.visit(stat)
 
     def visit_class(self, class_):
         if str(class_.name) in str(self.class_names):
@@ -353,7 +358,6 @@ class SemanticAnalyzer(Visitor):
             for return_expression1 in method.return_expression:
                 if return_expression1 is not None:
                     self.visit(return_expression1)
-        
 
     def visit_var_declaration(self, var_decl):
         """On va vérifier que le nom de la variable n'est pas déja utilisé et que les types des objets
@@ -364,7 +368,6 @@ class SemanticAnalyzer(Visitor):
                 f"Variable name {var_decl.identifier.value} already defined in another declaration"
             )
         else:
-            
             self.var_names.append(var_decl.identifier)
 
         if var_decl.type.tag not in [
@@ -375,7 +378,6 @@ class SemanticAnalyzer(Visitor):
             raise Exception("Unknown type: " + str(var.type))
         if var_decl.identifier.tag not in ["IDENTIFIER"]:
             raise Exception("Unknown type: " + str(var_decl.identifier))
-        
 
     def visit_type(self, type_):
         return type_.name
@@ -403,7 +405,6 @@ class SemanticAnalyzer(Visitor):
                 + "Was expecting type IDENTIFIER got "
                 + str(identifier.id.tag)
             )
-        
 
     def visit_bool_expression(self, bool_expression):
         return str(bool_expression.value)
@@ -428,7 +429,10 @@ class SemanticAnalyzer(Visitor):
                 f"Variable {ie_statement.identifier.value} is not yet defined, cannot be used. "
             )
         return (
-            str((ie_statement.identifier)) + "=" + str((ie_statement.expression)) + (";")
+            str((ie_statement.identifier))
+            + "="
+            + str((ie_statement.expression))
+            + (";")
         )
 
     def visit_if_statement(self, if_statement):
@@ -444,8 +448,6 @@ class SemanticAnalyzer(Visitor):
                 if else_ is not None:
                     else_1.append(self.visit(else_))
 
-        
-
     def visit_while_statement(self, while_statement):
         stats = []
         print("while_statement", while_statement.body)
@@ -454,8 +456,6 @@ class SemanticAnalyzer(Visitor):
                 if stat is not None:
                     stats.append(self.visit(stat))
 
-        
-
     def visit_simple_expression(self, simple_expr):
         return "\t" + str(simple_expr.object)
 
@@ -463,12 +463,11 @@ class SemanticAnalyzer(Visitor):
         return self.value
 
 
-
-
-
 class SemanticAnalyser2(Visitor):
+
     """On fait un second analyseur sémantique qui respecte plus le système de clé-hash
-    Cela permet de prendre en compte les différents scopes pour les déclarations de variables"""
+    Cela permet de prendre en compte les différents scopes pour les déclarations de variables
+    """
 
     def __init__(self):
         self.symbols_table = {}
@@ -487,21 +486,26 @@ class SemanticAnalyser2(Visitor):
             self.visit(class_decl)
 
     def visit_main_class(self, main_class):
-        print("a")
+        if main_class.statements is not None:
+            for stat in main_class.statements:
+                if stat is not None:
+                    self.visit(stat)
 
     def visit_class(self, class_):
-        """if str(class_.name) in str(self.class_names):
-            raise Exception("Class name already defined")
+        check = self.symbols_table.get(class_.name.value)
 
-        else:"""
+        if check:
+            raise Exception(f"Class name {class_.name} already defined")
+            #Cas d'une répitition de deux fois le meme nom.
+
         class_name = class_.name.value
         class_table = {}
-        self.symbols_table[class_name]= class_table
+        self.symbols_table[class_name] = class_table
         self.visit_class_current = (
-            class_name # On garde en mémoire la classe visitée actuellement
+            class_name  # On garde en mémoire la classe visitée actuellement
         )
         print("self.symbols_table\n", self.symbols_table)
-        
+
         for var in class_.var_declarations:
             self.place = "Var"
             self.visit(var)
@@ -518,10 +522,7 @@ class SemanticAnalyser2(Visitor):
         class_table = self.symbols_table[self.visit_class_current]
         class_table[method_name] = method_table
 
-        # self.symbols_table.append(method_table)
-
         print("self.symbols_table\n", self.symbols_table)
-        
 
         if method.var_declarations is not None:
             for var_decl in method.var_declarations:
@@ -535,7 +536,6 @@ class SemanticAnalyser2(Visitor):
             for return_expression1 in method.return_expression:
                 if return_expression1 is not None:
                     self.visit(return_expression1)
-        
 
     def visit_var_declaration(self, var_decl):
         """On va vérifier que le nom de la variable n'est pas déja utilisé et que les types des objets
@@ -570,21 +570,22 @@ class SemanticAnalyser2(Visitor):
         var_name_used = ie_statement.identifier.value
 
         class_table = self.symbols_table[self.visit_class_current]
-        #Key2 va vérifier la déclaration au niveau de la méthode
+        # Key2 va vérifier la déclaration au niveau de la méthode
         if self.visit_method_current is not None:
-            method_table = self.symbols_table[self.visit_class_current][self.visit_method_current]
-            key2=  method_table.get(var_name_used)
+            method_table = self.symbols_table[self.visit_class_current][
+                self.visit_method_current
+            ]
+            key2 = method_table.get(var_name_used)
         else:
             key2 = None
 
-        #Key va vérifier la déclaration au niveau de la classe
+        # Key va vérifier la déclaration au niveau de la classe
         key = class_table.get(var_name_used)
         print("method_table\n", method_table)
-        print("var_name_used",var_name_used)
-        
-        
+        print("var_name_used", var_name_used)
+
         if key2 is None and key is None:
-            #Cas ou la variables n'a jamais été déclarée
+            # Cas ou la variables n'a jamais été déclarée
             raise Exception(
                 f"Variable {ie_statement.identifier.value} is not yet defined, cannot be used. "
             )

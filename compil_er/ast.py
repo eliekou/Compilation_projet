@@ -150,8 +150,9 @@ class System_out_println(Statement):
     def __init__(self, expr):
         self.expr = expr
 
-    # def __str__(self):
-    #     return "System.out.println(" + str(self.expr) + ");"
+    
+    def __str__(self):
+        return "System.out.println(" + str(self.expr) + ");"
 
     def accept(self, visitor):
         return visitor.visit_system_out_println(self)
@@ -180,8 +181,8 @@ class Integer:
 
 
 class MainClass:
-    def __init__(self, statement):
-        self.statement = statement
+    def __init__(self):
+        self.statements = []
 
     def accept(self, visitor):
         return visitor.visit_main_class(self)

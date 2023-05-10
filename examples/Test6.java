@@ -12,3 +12,10 @@ class ndclass{
 
     int a3;
 }
+
+class ndclass{
+
+    int a2;
+
+    int a3;
+}

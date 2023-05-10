@@ -1,13 +1,13 @@
 class Main{  
     public static void main(String args[]){  
-     System.out.println("HelloJava");
+     b=2;
     }  
 }  
 
 class Test1{  
     
-    int a ;
-    int a;
+    
+    int a1;
     int b ;
 
      
@@ -25,7 +25,7 @@ class Test1{
         }
         return num_aux;
     }
-
+    
 
     
 } 
