@@ -1,6 +1,9 @@
 class Visitor:
     """Le premier visiteur est uniquement un template de visiteur.
-    Il ne fait que parcourir le programme"""
+    Il ne fait que parcourir le programme
+    Il est uniquement fait pour pouvoir être hérité par les autres visiteurs.
+    
+    Le pretty printer situé plus bas, et les deux semantic Analyser sont ceux qu'ils faut lancer."""
 
     def visit(self, node):
         return node.accept(self)
@@ -107,8 +110,11 @@ class PrettyPrinter(Visitor):
 
     def visit_main_class(self, main_class):
         """
-        MainClass	::=	"class" Identifier "{" "public" "static" "void" "main" "(" "String" "[" "]" Identifier ")" "{" Statement "}" "}"
+        MainClass	::=	"class" Identifier "{" "public" "static" "void" "main" "(" "String" "[" "]" Identifier ")" "{" (Statement)* "}" "}"
         """
+        #Dans la grammaire choisie, la classe Main peut avoir plusieurs statements.
+
+
         print_statements = []
         for stat in main_class.statements:
             if stat is not None:
@@ -294,6 +300,8 @@ class SemanticAnalyzer(Visitor):
     - la répitition de deux fois le meme nom de variable comme declaration dans le Main
     - l'héritage d'une classe Parent non définie dans le meme programme
     - l'utilisation d'une variable non préalablement déclarée
+
+    Dans chacun des ces cas, il y aura une exception qui sera raise.
     """
 
     def __init__(self):
@@ -466,7 +474,10 @@ class SemanticAnalyzer(Visitor):
 class SemanticAnalyser2(Visitor):
 
     """On fait un second analyseur sémantique qui respecte plus le système de clé-hash
-    Cela permet de prendre en compte les différents scopes pour les déclarations de variables
+    Cela permet de prendre en compte les différents scopes pour les déclarations de variables.
+
+    On va donc créer une table de symboles qui va contenir les classes déclarées, les différentes variables déclarées au sein de ces 
+    classes ou des méthodes de ces classes.
     """
 
     def __init__(self):
@@ -481,11 +492,13 @@ class SemanticAnalyser2(Visitor):
         self.visit(program.main_class)
 
         for class_decl in program.classes:
-            print("class_decl\n")
-            print(class_decl)
+            
             self.visit(class_decl)
-
+        print(self.symbols_table)#Affichage du dictionnnaire crée pendant la visite du programme
     def visit_main_class(self, main_class):
+        class_main_table = {}
+        self.symbols_table["Main"] = class_main_table
+        self.visit_class_current = "Main"
         if main_class.statements is not None:
             for stat in main_class.statements:
                 if stat is not None:
@@ -501,13 +514,11 @@ class SemanticAnalyser2(Visitor):
         class_name = class_.name.value
         class_table = {}
         self.symbols_table[class_name] = class_table
-        self.visit_class_current = (
-            class_name  # On garde en mémoire la classe visitée actuellement
-        )
-        print("self.symbols_table\n", self.symbols_table)
+        self.visit_class_current = class_name  # On garde en mémoire la classe visitée actuellement
+        
 
         for var in class_.var_declarations:
-            self.place = "Var"
+            self.visit_method_current = None
             self.visit(var)
         for method in class_.method_declarations:
             self.visit(method)
@@ -522,7 +533,7 @@ class SemanticAnalyser2(Visitor):
         class_table = self.symbols_table[self.visit_class_current]
         class_table[method_name] = method_table
 
-        print("self.symbols_table\n", self.symbols_table)
+        
 
         if method.var_declarations is not None:
             for var_decl in method.var_declarations:
@@ -545,9 +556,12 @@ class SemanticAnalyser2(Visitor):
             method_table = self.symbols_table[self.visit_class_current][
                 self.visit_method_current
             ]
+            # On est dans le cas d'une déclaration de variables au sein d'une méthode
         else:
             method_table = self.symbols_table[self.visit_class_current]
-        print(self.symbols_table)
+
+            # On est dans le cas d'une déclaration de variables en dehors d'une méthode
+        
         if var_name in method_table:
             raise Exception(
                 f"Variable name {var_decl.identifier.value} already defined in another declaration"
@@ -562,7 +576,7 @@ class SemanticAnalyser2(Visitor):
             raise Exception("Unknown type: " + str(var.type))
         if var_decl.identifier.tag not in ["IDENTIFIER"]:
             raise Exception("Unknown type: " + str(var_decl.identifier))
-        print(self.symbols_table)
+        
 
     def visit_ie_statement(self, ie_statement):
         """On vérifie que l'on ne peut pas faire de déclaration sur une variable non déclarée"""
@@ -577,12 +591,12 @@ class SemanticAnalyser2(Visitor):
             ]
             key2 = method_table.get(var_name_used)
         else:
+            method_table = None
             key2 = None
 
         # Key va vérifier la déclaration au niveau de la classe
         key = class_table.get(var_name_used)
-        print("method_table\n", method_table)
-        print("var_name_used", var_name_used)
+        
 
         if key2 is None and key is None:
             # Cas ou la variables n'a jamais été déclarée
@@ -591,7 +605,7 @@ class SemanticAnalyser2(Visitor):
             )
         else:
             pass
-        print("test")
+        
 
     def visit_if_statement(self, if_statement):
         body_1 = []

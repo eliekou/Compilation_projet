@@ -20,4 +20,4 @@ if __name__ == "__main__":
 
     # 2ème analyseur sémantique
     test3 = SemanticAnalyser2()
-    """test3.visit_program(parser.parse())"""
+    #test3.visit_program(parser.parse())
